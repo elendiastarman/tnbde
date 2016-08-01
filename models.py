@@ -17,6 +17,8 @@ class Message(models.Model):
     date = models.DateField()
     time = models.TimeField(null=True,blank=True)
 
-    content = models.TextField()    
+    content = models.TextField()
+    name = models.CharField(max_length=200, null=True,blank=True)
+    stars = models.IntegerField(default=0)
     onebox = models.BooleanField(default=False)
     oneboxType = models.CharField(max_length=30)

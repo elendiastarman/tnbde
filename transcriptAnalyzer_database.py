@@ -13,6 +13,7 @@ class parser(hp.HTMLParser):
         self.numText = 0
         self.state = ""
         self.timestamp = None
+        self.divNest = 0
         self.names = {}
         self.messages = {}
         
@@ -28,11 +29,10 @@ class parser(hp.HTMLParser):
                 self.state = "onebox"
 
         elif self.state == "onebox":
+            if tag == "div": self.divNest += 1
             self.currMess["content"] += "<{0} {1}>".format(tag, ' '.join('%s="%s"'%attr for attr in attrs))
 
         elif tag in ("div","a"):
-            self.numTags += 1
-
             if 1 and self.debug:
                 print("tag:",tag)
                 print("attrs:",attrs)
@@ -50,6 +50,7 @@ class parser(hp.HTMLParser):
                 self.messages[mid] = {'uid':self.currUser,
                                       'rid':None,
                                       'name':self.names[self.currUser],
+                                      'stars':0,
                                       'onebox':"",
                                       'content':"",
                                       'timestamp':self.timestamp}
@@ -65,21 +66,33 @@ class parser(hp.HTMLParser):
 
             elif attrs[0][1] == "content":
                 self.state = "content"
+                self.divNest = 0
 
             elif attrs[0][1] == "timestamp":
                 self.state = "get time"
 
+        elif tag == "span" and len(attrs) and attrs[0] == ('class','times'):
+            self.state = "get stars"
+
     def handle_endtag(self, tag):
         if self.state == "content":
             if tag == "div":
-                self.state = ""
-                self.currMess["content"] = self.currMess["content"][:-40]
+                if self.divNest == 0:
+                    self.state = ""
+                    self.currMess["content"] = self.currMess["content"][:-40]
+                else:
+                    self.divNest -= 1
+                    self.currMess["content"] += "</div>"
             else:
                 self.currMess["content"] += "</%s>"%tag
 
         elif self.state == "onebox":
             if tag == "div":
-                self.state = ""
+                if self.divNest == 0:
+                    self.state = ""
+                else:
+                    self.divNest -= 1
+                self.currMess["content"] += "</div>"
             else:
                 self.currMess["content"] += "</%s>"%tag
 
@@ -87,7 +100,6 @@ class parser(hp.HTMLParser):
         if self.state == "content":
             if 1 and self.debug: print("  data:",data)
             
-            self.numText += 1
             if self.currMess["content"]:
                 self.currMess["content"] += data
             else:
@@ -103,6 +115,11 @@ class parser(hp.HTMLParser):
         elif self.state == "get time":
             self.state = ""
             self.timestamp = data.strip()
+
+        elif self.state == "get stars":
+            self.state = ""
+            data = data.strip()
+            self.currMess['stars'] = int(data) if data else 0
 
 def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4, debug=0):
     urlTemp = "http://chat.stackexchange.com/transcript/"+"{}/"*4+"{}-{}"
@@ -127,6 +144,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
         uid = message['uid']
         rid = message['rid']
         name = message['name']
+        stars = message['stars']
         onebox = message['onebox']
         content = message['content']
         timestamp = message['timestamp']
@@ -158,8 +176,10 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
         try:
             message = Message.objects.get(mid=mid)
             
-            if message.content != content:
+            if message.content != content or message.name != name or message.stars != stars:
                 message.rid = rid
+                message.name = name
+                message.stars = stars
                 message.content = content
                 message.onebox = bool(onebox)
                 message.oneboxType = onebox
@@ -177,6 +197,8 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
             
             message = Message(mid=mid, user=user, room=roomNum, date=date, time=time)
             message.rid = rid
+            message.name = name
+            message.stars = stars
             message.content = content
             message.onebox = bool(onebox)
             message.oneboxType = onebox
