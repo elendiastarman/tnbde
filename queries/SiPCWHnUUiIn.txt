@@ -1,0 +1,2 @@
+SET statement_timeout TO 1000;
+SELECT * FROM "transcriptAnalyzer_user";

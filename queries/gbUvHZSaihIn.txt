@@ -1,0 +1,15 @@
+SET statement_timeout TO 1000;
+SELECT M.content, UN.name FROM "transcriptAnalyzer_message" M
+
+INNER JOIN "transcriptAnalyzer_username" UN
+  On
+    M.user_id = UN.user_id
+
+WHERE
+    M.onebox = FALSE
+  AND
+    M.date = '2016-07-27'
+  AND
+    M.content LIKE '%ಠ_ಠ%'
+
+ORDER BY M.time;

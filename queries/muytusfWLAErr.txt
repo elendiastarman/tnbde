@@ -1,0 +1,3 @@
+ERROR:  column m.contenxt does not exist
+LINE 1: SELECT M.contenxt, (length(M.content) - length(replace(M.con...
+               ^

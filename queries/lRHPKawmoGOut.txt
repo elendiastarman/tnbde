@@ -1,0 +1,101 @@
+<p>SET</p>
+<table border="1">
+  <tr>
+    <th align="center">content</th>
+    <th align="center">wordage</th>
+  </tr>
+  <tr valign="top">
+    <td align="left">@GamrCorps Haha, that's funny, but seriously, like half this room's population doesn't live in the USA. And the other half typically has some foreign language knowledge/experience.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@LegionMammal978 Keep developing CPUs and their C compiler?</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@DrGreenEggsandIronMan Have you ever driven for ten hours? :P</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@HelkaHomba That was actually fairly easy for me. Automatic taxi please!</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Once you have enough driving experience, driving on the highway becomes a weird sort of boring. I often think about all manner of things, and it's essentially become normal for me to not really pay attention to my surroundings (in a muscle-memory sort of way).</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ I got my permit at 16 and my license at 18. I skipped an intermediate phase - drive any time with someone else that has a license. I do suggest getting a permit because you really need driving experience.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Heh, I didn't have a problem with being focused when I was just getting started driving. In fact, I disliked driving at first because there were too many variables (i.e., people), so I was very aware of everything. Now that I've been driving for six years or so, I'm much more relaxed.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Err, isn't &quot;Google Translate&quot; a proper noun, like a name, and therefore untranslated?</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@flawr I &lt;i&gt;think&lt;/i&gt; you might be thinking of &lt;a&gt;this&lt;/a&gt;? The right-hand sidebar has four links to videos in the upper half.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@quartata It's weird how this is one of those things that surprises companies. I mean, who would've guessed that people would be more interested in your job offers if you tell them how much you'll pay upfront?</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@flawr Why are you looking for this thing you're looking for?</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@flawr No problem. :D</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@TùxCräftîñg Kinda like how TNB is one of the only chatrooms with a &quot;chatiquette&quot;.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@TùxCräftîñg That's far from the truth.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ Why does it matter that there are still bad behaviors in this chat? A wellspring of them has been stopped up.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ Mostly because it's been explicitly labeled.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ Mmm, no, it's somewhat analogous to how people think that all sorts of crime are on the rise, when it's the opposite, because the media focuses on the bad stuff.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ Hmm, I didn't exactly mean a specific, explicit label, but more like &quot;overused jokes/memes (avodad) are bad, being mean ('Alex is wrong') is bad, caret chains are bad, bunches of ASCII faces are bad, tons of images and gifs are bad, etc...&quot;</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Now that all that kind of stuff has been labeled &quot;bad&quot;, you notice it more.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ If they escalate, suspensions become a possibility.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@CᴏɴᴏʀO'Bʀɪᴇɴ The point about giving [pre-]teens something more concrete to rebel against seems plausible to me. On the other hand, I feel like moving messages to Trash and kick-muting works pretty well for suppressing such behavior.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Besides, this chat room isn't only for teenagers.</td>
+    <td align="right">2</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Yeah, the adults (or those who are mature like adults) don't need the Chatiquette.</td>
+    <td align="right">2</td>
+  </tr>
+</table>
+<p>(23 rows)<br />
+</p>

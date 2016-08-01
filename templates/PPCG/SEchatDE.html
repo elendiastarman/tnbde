@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//Dli XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/Dli/xhtml11.dli">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+		<title>Quest For Tetris - Circuit Simulator</title>
+		
+		{% load staticfiles %}
+		<!-- <link rel="stylesheet" type="text/css" href="{% static 'd3applets/dotandcross.css' %}" /> -->
+		<style>
+			#field {
+				border: 1px solid black;
+                width: 600px;
+                height: 400px;
+			}
+		</style>
+	</head>
+	
+	<body style="margin-left: 20px">
+	
+		<h1>Quest For Tetris - Circuit Simulator</h1>
+		<p id="desc">A circuit simulator for the <a href="http://chat.stackexchange.com/rooms/35837/the-quest-for-tetris">Quest For Tetris</a> project.</p>
+		
+		<svg id="field">
+			<g id="frame"></g>
+		</svg>
+		
+	
+		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+		<script src="{% static 'd3applets/qftcircuitsim.js' %}"></script>
+		
+	</body>
+</html>

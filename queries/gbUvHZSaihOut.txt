@@ -1,0 +1,77 @@
+<p>SET</p>
+<table border="1">
+  <tr>
+    <th align="center">content</th>
+    <th align="center">name</th>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ to the two people who have consumed my brethren</td>
+    <td align="left">Downgoat</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ &lt;code&gt;s.turn&lt;/code&gt;</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">y u dont regex ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ ok mathematica is definitively weird</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Mathematica ask if it's weird ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">i see ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">it's because he work with wolfram ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">what is the magic of this command? ಠ_ಠ</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+</table>
+<p>(17 rows)<br />
+</p>

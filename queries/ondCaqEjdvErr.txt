@@ -1,0 +1,3 @@
+ERROR:  syntax error at or near "M"
+LINE 1: ...length(replace(M.content, ' ', '')) + 1) wordagem M.date, M....
+                                                             ^

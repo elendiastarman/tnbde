@@ -1,0 +1,11 @@
+SET statement_timeout TO 1000;
+SELECT M.content FROM "transcriptAnalyzer_message" M
+
+WHERE
+    Monebox = FALSE
+  AND
+    M.date = '2016-07-27'
+  AND
+    M.content LIKE '%ಠ_ಠ%'
+
+ORDER BY M.time;

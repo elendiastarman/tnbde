@@ -1,0 +1,2 @@
+SET statement_timeout TO 1000;
+SELECT onebox, content FROM "transcriptAnalyzer_message" WHERE onebox = TRUE;

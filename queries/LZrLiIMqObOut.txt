@@ -1,0 +1,157 @@
+<p>SET</p>
+<table border="1">
+  <tr>
+    <th align="center">content</th>
+    <th align="center">name</th>
+  </tr>
+  <tr valign="top">
+    <td align="left">Retina, 25 bytes, &lt;a&gt;&lt;code&gt;^(?!.*(?&lt;!:)[^:;\s](?!:))&lt;/code&gt;&lt;/a&gt;</td>
+    <td align="left">Leaky Nun</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">vous utilisez &quot;Fene^tre&quot;?</td>
+    <td align="left">Cᴏɴᴏʀ O'Bʀɪᴇɴ</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">Helka Homba</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">GamrCorps</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@Quill ^?</td>
+    <td align="left">Downgoat</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@Optimizer when we look back at each time we heard some deadlines for things, like the community ads for instance, we can safely estimate they meant &lt;code&gt;November 21st 2017 or 2018&lt;/code&gt; ^^</td>
+    <td align="left">Katenkyo</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@MᴀʀsUʟᴛᴏʀ Same here... Well, I can't understand why then ^^</td>
+    <td align="left">Katenkyo</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^^^</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">Leaky Nun</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Just not by Google Translate itself ^^</td>
+    <td align="left">Katenkyo</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^^^</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^ comparison</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Chat mini-challenge: Prove that ε₁ = ω^ε₁.</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">I think I need some sleep ^^'</td>
+    <td align="left">Katenkyo</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@LeakyNun That's sub-text ^^</td>
+    <td align="left">Katenkyo</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@LeakyNun Oh, right, it may fit better  Chez cosette ^^</td>
+    <td align="left">Katenkyo</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">discussion ^here^</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Because for input &lt;code&gt;a^b&lt;/code&gt; it does not produce &lt;code&gt;\x20b\na&lt;/code&gt;</td>
+    <td align="left">Leaky Nun</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">&lt;code&gt;S(?&lt;!\^)[^^]&amp; &amp;\^&amp;`S\^.&amp; &lt;/code&gt; the regex is so ugly now</td>
+    <td align="left">quartata</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^ Clue for the encryption password.</td>
+    <td align="left">zyabin101</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@TùxCräftîñg ^</td>
+    <td align="left">zyabin101</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">TùxCräftîñg</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@TùxCräftîñg &lt;code&gt;M^e mod pq&lt;/code&gt;</td>
+    <td align="left">quartata</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">also ^^</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">@quartata ^</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^ best one yet</td>
+    <td align="left">LegionMammal978</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">Cᴏɴᴏʀ O'Bʀɪᴇɴ</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^ that only does it to the current line</td>
+    <td align="left">Dr Green Eggs and Iron Man</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^ Dabble yoo tee eff.</td>
+    <td align="left">zyabin101</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">Downgoat</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">^</td>
+    <td align="left">Cᴏɴᴏʀ O'Bʀɪᴇɴ</td>
+  </tr>
+  <tr valign="top">
+    <td align="left">Yes, the &lt;code&gt;ÄÒ +òf^xxé kPj&lt;/code&gt; or whatever.</td>
+    <td align="left">Dennis</td>
+  </tr>
+</table>
+<p>(37 rows)<br />
+</p>

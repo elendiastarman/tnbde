@@ -1,0 +1,3 @@
+ERROR:  column "contenxt" does not exist
+LINE 1: SELECT contenxt FROM "transcriptAnalyzer_message" WHERE oneb...
+               ^

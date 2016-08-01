@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//Dli XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/Dli/xhtml11.dli">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+		<title>The Nineteenth Byte Data Explorer</title>
+		
+		{% load staticfiles %}
+		<!-- <link rel="stylesheet" type="text/css" href="{% static 'd3applets/dotandcross.css' %}" /> -->
+		<style>
+			textarea {
+                width: 80%;
+                height: 15em;
+            }
+            table {
+                border-collapse: collapse;
+                border: 2px solid black;
+            }
+            .error { color: red; }
+		</style>
+	</head>
+	
+	<body style="margin-left: 20px">
+	
+		<h1>The Nineteenth Byte Data Explorer</h1>
+		<p id="desc">A data explorer for <a href="http://chat.stackexchange.com/rooms/240/the-nineteenth-byte">The Nineteenth Byte</a>.</p>
+		
+        <p>Enter your SQL query here:</p>
+        <textarea id="sql">SELECT content FROM "transcriptAnalyzer_message" WHERE onebox = FALSE AND date = '2016-07-27';</textarea>
+        
+        <p>Optional (and coming soon!) - JavaScript to be executed on the results:<br/><span color="red"><strong>Beware of running JavaScript code from unknown or untrusted sources.</strong></span></p>
+        <textarea id="javascript" disabled></textarea>
+        
+        <p>
+            <button onclick="run_code()" id="run-button">Run:</button>
+            <input type="checkbox" id="run-sql" name="run-type" checked />
+            <label for="run-sql">SQL</label>
+            <input type="checkbox" id="run-js" name="run-type" disabled />
+            <label for="run-js">JavaScript</label>
+        </p>
+        
+        <p>Query output:</p>
+        <div id="query-output" style="overflow:auto; max-height:25em;"></div>
+        
+        <p>Visualization area:</p>
+        <svg style="border: 1px solid black" id="viz"></svg>
+        
+        <h2>Notes:</h2>
+        <p>The underlying database engine is PostgreSQL. Query execution time is currently limited to 1 second, and only read-only operations are allowed. The jQuery and D3 JavaScript libraries are both available for use, the provided SVG for visualization has an id of "viz", and (coming soon!) the variable <code>queryOutput</code> contains the query results in JSON format.</p>
+	
+		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+		<script src="{% static 'PPCG/TNBDE.js' %}"></script>
+		
+	</body>
+</html>

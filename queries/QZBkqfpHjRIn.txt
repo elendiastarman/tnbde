@@ -1,0 +1,13 @@
+SET statement_timeout TO 1000;
+SELECT TOP 1 FROM "transcriptAnalyzer_message" M
+
+INNER JOIN 
+
+WHERE
+    M.onebox = FALSE
+  AND
+    M.date = '2016-07-27'
+  AND
+    M.content LIKE '%ಠ_ಠ%'
+
+ORDER BY M.time;

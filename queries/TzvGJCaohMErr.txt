@@ -1,0 +1,3 @@
+ERROR:  invalid input syntax for integer: "hi"
+LINE 1: ....content) - length(replace(M.content, ' ', '')) + 'hi') word...
+                                                             ^
