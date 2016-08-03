@@ -19,6 +19,20 @@ from subprocess import call
 def TNBDE_view(request, **kwargs):
     context = RequestContext(request)
 
+    print(kwargs["code"] if "code" in kwargs else "(no code)")
+
+    context["sql"] = "SELECT content FROM \"transcriptAnalyzer_message\" WHERE onebox = FALSE AND date = '2016-07-27';"
+    context["js"] = ""
+    context["error"] = False
+
+    if "code" in kwargs:
+        try:
+            filepath = os.path.join("transcriptAnalyzer","queries",kwargs["code"])
+            context["sql"] = open(filepath+"In.txt", 'r', encoding='utf-8').read()[31:]
+            context["js"] = open(filepath+"JS.txt", 'r', encoding='utf-8').read()
+        except FileNotFoundError as e:
+            context["error"] = True
+
     return render(request, 'PPCG/TNBDE.html', context_instance=context)
 
 @csrf_exempt
@@ -26,15 +40,14 @@ def runcode(request, **kwargs):
     context = RequestContext(request)
 
     filename = ''.join(random.choice(string.ascii_letters) for _ in range(10))
-    filein = filename+'In.txt'
-    fileout = filename+'Out.txt'
-    fileerr = filename+'Err.txt'
-    filepathin = os.path.join("transcriptAnalyzer","queries",filein)
-    filepathout = os.path.join("transcriptAnalyzer","queries",fileout)
-    filepatherr = os.path.join("transcriptAnalyzer","queries",fileerr)
+    filepath = os.path.join("transcriptAnalyzer","queries",filename)
 
-    f = open(filepathin, 'w', encoding='utf-8')
+    f = open(filepath + "In.txt", 'w', encoding='utf-8')
     f.write('SET statement_timeout TO 1000;\n' + request.POST['query'])
+    f.close()
+
+    f = open(filepath + "JS.txt", 'w', encoding='utf-8')
+    f.write(request.POST['javascript'])
     f.close()
 
     if sys.platform == 'win32':
@@ -42,12 +55,15 @@ def runcode(request, **kwargs):
     elif sys.platform == 'linux':
         pathtopsql = r""
 
-    command = [pathtopsql, "--html", "-U", "TAAnon", "PPCG_transcript", "<", filepathin, ">", filepathout, "2>", filepatherr]
+    command = [pathtopsql, "--html", "-U", "TAAnon", "PPCG_transcript",
+               "<",  filepath + "In.txt",
+               ">",  filepath + "Out.txt",
+               "2>", filepath + "Err.txt"]
     exitCode = call(command, shell=True)#, env={'PATH': os.getenv('PATH')})
     print("exitCode:",exitCode)
     time.sleep(1)
 
-    result = open(filepathout, 'r', encoding='utf-8').read()
-    result_err = open(filepatherr, 'r', encoding='utf-8').read()
+    result = open(filepath + "Out.txt", 'r', encoding='utf-8').read()
+    result_err = open(filepath + "Err.txt", 'r', encoding='utf-8').read()
 
-    return HttpResponse(result[11:] if not result_err else result_err, content_type="text/utf8")
+    return HttpResponse(filename + result[11:] if not result_err else result_err, content_type="text/utf8")

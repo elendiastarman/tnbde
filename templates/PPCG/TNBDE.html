@@ -25,12 +25,14 @@
 	
 		<h1>The Nineteenth Byte Data Explorer</h1>
 		<p id="desc">A data explorer for <a href="http://chat.stackexchange.com/rooms/240/the-nineteenth-byte">The Nineteenth Byte</a>.</p>
+        
+        {% if error %}<p style="color: red; font-weight: bold;">Error: invalid permalink.</p>{% endif %}
 		
         <p>Enter your SQL query here:</p>
-        <textarea id="sql">SELECT content FROM "transcriptAnalyzer_message" WHERE onebox = FALSE AND date = '2016-07-27';</textarea>
+        <textarea id="sql">{{sql}}</textarea>
         
         <p>Optional (and coming soon!) - JavaScript to be executed on the results:<br/><span color="red"><strong>Beware of running JavaScript code from unknown or untrusted sources.</strong></span></p>
-        <textarea id="javascript" disabled></textarea>
+        <textarea id="javascript" disabled>{{js}}</textarea>
         
         <p>
             <button onclick="run_code()" id="run-button">Run:</button>
@@ -38,6 +40,8 @@
             <label for="run-sql">SQL</label>
             <input type="checkbox" id="run-js" name="run-type" disabled />
             <label for="run-js">JavaScript</label>
+            <br/>
+            <a href="" id="permalink" hidden>Permalink</a>
         </p>
         
         <p>Query output:</p>
@@ -47,7 +51,34 @@
         <svg style="border: 1px solid black" id="viz"></svg>
         
         <h2>Notes:</h2>
-        <p>The underlying database engine is PostgreSQL. Query execution time is currently limited to 1 second, and only read-only operations are allowed. The jQuery and D3 JavaScript libraries are both available for use, the provided SVG for visualization has an id of "viz", and (coming soon!) the variable <code>queryOutput</code> contains the query results in JSON format.</p>
+        <ul>
+            <li>The underlying database engine is PostgreSQL.</li>
+            <li>Query execution time is currently limited to 1 second, and only read-only operations are allowed.</li>
+            <li>There are currently three tables (all prepended with <code>transcriptAnalyzer_</code>, to be fixed later):
+                <ul>
+                    <li><code>user</code>, which has two columns: <code>id</code> (internal user id) and <code>uid</code> (SE chat id);</li>
+                    <li><code>username</code>, which has three columns: <code>id</code>, <code>name</code>, and <code>user_id</code>;</li>
+                    <li><code>message</code>, which has eleven columns:
+                        <ul>
+                            <li><code>user_id</code> &ndash; the user who posted the message</li>
+                            <li><code>mid</code> &ndash; message id</li>
+                            <li><code>rid</code> &ndash; reply id, the message id of the message being replied to (if applicable)</li>
+                            <li><code>room</code> &ndash; the id of the chat room the message was in (240 for now)</li>
+                            <li><code>date</code> &ndash; YYYY-MM-DD format</li>
+                            <li><code>time</code> &ndash; somewhat coarse-grained, due to how SE chat displays message times</li>
+                            <li><code>content</code> &ndash; currently provided as raw HTML</li>
+                            <li><code>name</code> &ndash; the username of the user who posted the message at the time of posting</li>
+                            <li><code>stars</code> &ndash how many stars the message has</li>
+                            <li><code>onebox</code> &ndash; whether or not the message has a onebox</li>
+                            <li><code>oneboxType</code> &ndash; post, message, youtube, etc...</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>The jQuery and D3 JavaScript libraries are both available for use.</li>
+            <li>The provided SVG for visualization has an id of "viz".</li>
+            <li>(Coming soon!) The variable <code>queryOutput</code> contains the query results in JSON format.</li>
+        </ul>
 	
 		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>

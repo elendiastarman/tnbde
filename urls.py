@@ -6,4 +6,5 @@ from transcriptAnalyzer.views import *
 urlpatterns = [
     url(r'^$', TNBDE_view),
     url(r'^runcode$', runcode),
+    url(r'^(?P<code>\w*)$', TNBDE_view),
 ]
