@@ -1,2 +1,0 @@
-SET statement_timeout TO 1000;
-SELECT content, date FROM "transcriptAnalyzer_message" WHERE onebox = FALSE;

@@ -21,6 +21,8 @@ function run_code(){
                     $('#query-output').append($(response));
                     $('#permalink').attr('href', location.origin+'/'+code);
                     $('#permalink').prop('hidden', false);
+                    
+                    if(runjs){ Function($("#javascript").val())(); }
                 } else {
                     $('#query-output').append($('<pre class="error">'+response+'</pre>'));
                 }
@@ -31,4 +33,8 @@ function run_code(){
             }
         });
     }
+}
+
+function setVisCode(){
+    window["visualize"] = new Function($("#javascript").val());
 }

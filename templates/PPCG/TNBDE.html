@@ -32,13 +32,13 @@
         <textarea id="sql">{{sql}}</textarea>
         
         <p>Optional (and coming soon!) - JavaScript to be executed on the results:<br/><span color="red"><strong>Beware of running JavaScript code from unknown or untrusted sources.</strong></span></p>
-        <textarea id="javascript" disabled>{{js}}</textarea>
+        <textarea id="javascript">{{js}}</textarea>
         
         <p>
             <button onclick="run_code()" id="run-button">Run:</button>
             <input type="checkbox" id="run-sql" name="run-type" checked />
             <label for="run-sql">SQL</label>
-            <input type="checkbox" id="run-js" name="run-type" disabled />
+            <input type="checkbox" id="run-js" name="run-type" />
             <label for="run-js">JavaScript</label>
             <br/>
             <a href="" id="permalink" hidden>Permalink</a>

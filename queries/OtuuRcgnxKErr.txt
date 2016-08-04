@@ -1,3 +1,0 @@
-ERROR:  column m.contentx does not exist
-LINE 1: SELECT M.contentx, (length(M.content) - length(replace(M.con...
-               ^
