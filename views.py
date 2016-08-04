@@ -15,7 +15,6 @@ import random
 from subprocess import call
 
 # Create your views here.
-##@ensure_csrf_cookie
 def TNBDE_view(request, **kwargs):
     context = RequestContext(request)
 
