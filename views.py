@@ -33,7 +33,7 @@ def TNBDE_view(request, **kwargs):
         except FileNotFoundError as e:
             context["error"] = True
 
-    return render(request, 'PPCG/TNBDE.html', context_instance=context)
+    return render(request, 'transcriptAnalyzer/TNBDE.html', context_instance=context)
 
 @csrf_exempt
 def runcode(request, **kwargs):
