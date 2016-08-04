@@ -16,7 +16,7 @@ from subprocess import call
 
 # Create your views here.
 def TNBDE_view(request, **kwargs):
-    context = RequestContext(request)
+    context = {}#RequestContext(request)
 
     context["sql"] = "SELECT content FROM \"transcriptAnalyzer_message\" WHERE onebox = FALSE AND date = '2016-07-27';"
     context["js"] = ""
