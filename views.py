@@ -18,8 +18,6 @@ from subprocess import call
 def TNBDE_view(request, **kwargs):
     context = RequestContext(request)
 
-    print(kwargs["code"] if "code" in kwargs else "(no code)")
-
     context["sql"] = "SELECT content FROM \"transcriptAnalyzer_message\" WHERE onebox = FALSE AND date = '2016-07-27';"
     context["js"] = ""
     context["error"] = False
