@@ -122,15 +122,15 @@ class parser(hp.HTMLParser):
             data = data.strip()
             self.currMess['stars'] = int(data) if data else 0
 
-def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4, debug=0):
+def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4, debug=0, log=0):
     urlTemp = "http://chat.stackexchange.com/transcript/"+"{}/"*4+"{}-{}"
     url = urlTemp.format(*[roomNum, year, month, day, hourStart, hourEnd])
 
-    print(url)
+    if debug & 2: print(url)
 
     text = ur.urlopen(url).read().decode('utf-8')
 
-    p = parser(debug=debug)
+    p = parser(debug=debug & 1)
     p.feed(text)
 
     users = {}
@@ -138,7 +138,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
     messagesToCreate = []
 
     for mid, message in p.messages.items():
-        print("messNum, mid: %s, %s" % (messNum, mid))
+        if debug & 2: print("messNum, mid: %s, %s" % (messNum, mid))
         messNum += 1
 ##        print(mid, message)
         

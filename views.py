@@ -72,6 +72,8 @@ def runcode(request, **kwargs):
         con.rollback()
         error = str(e)
 
+    con.close()
+
     if error:
         data["error"] = error
     else:
