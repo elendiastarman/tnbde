@@ -36,6 +36,8 @@ function run_code(){
                 $('#query-output').append($('<p>Something went wrong! :(</p>'));
             }
         });
+    } else if(runjs){
+        Function($("#javascript").val())();
     }
 }
 
