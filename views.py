@@ -57,8 +57,8 @@ def runcode(request, **kwargs):
     data['results_html'] = ""
     data['results_json'] = ""
 
-    con = psycopg2.connect(database="PPCG_transcript",
-                           user="TAAnon",
+    con = psycopg2.connect(database="PPCG_transcript" if sys.platform == 'windows' else "ppcg_transcript",
+                           user="TAAnon" if sys.platform == 'windows' else "taanon",
                            password="foobar",
                            host="127.0.0.1",
                            port="5432")
