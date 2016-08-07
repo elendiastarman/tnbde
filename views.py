@@ -39,7 +39,8 @@ def runcode(request, **kwargs):
     context = RequestContext(request)
 
     filename = ''.join(random.choice(string.ascii_letters) for _ in range(10))
-    filepath = os.path.join("transcriptAnalyzer","queries",filename)
+    pathpref = "/home/elendia/webapps/ppcg/PPCG/" if sys.platform == 'linux' else ""
+    filepath = os.path.join(pathpref+"transcriptAnalyzer","queries",filename)
 
     f = open(filepath + "In.txt", 'w', encoding='utf-8')
     querystring = 'SET statement_timeout TO 1000;\n' + request.POST['query']
