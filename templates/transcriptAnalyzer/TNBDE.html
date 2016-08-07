@@ -57,10 +57,10 @@
             <li>There are currently three tables (all prepended with <code>transcriptAnalyzer_</code>, to be fixed later):
                 <ul>
                     <li><code>user</code>, which has two columns: <code>id</code> (internal user id) and <code>uid</code> (SE chat id);</li>
-                    <li><code>username</code>, which has three columns: <code>id</code>, <code>name</code>, and <code>user_id</code>;</li>
+                    <li><code>username</code>, which has three columns: <code>id</code>, <code>name</code>, and <code>user_id (internal id)</code>;</li>
                     <li><code>message</code>, which has eleven columns:
                         <ul>
-                            <li><code>user_id</code> &ndash; the user who posted the message</li>
+                            <li><code>user_id</code> &ndash; the user who posted the message (internal id)</li>
                             <li><code>mid</code> &ndash; message id</li>
                             <li><code>rid</code> &ndash; reply id, the message id of the message being replied to (if applicable)</li>
                             <li><code>room</code> &ndash; the id of the chat room the message was in (240 for now)</li>
@@ -77,7 +77,7 @@
             </li>
             <li>The jQuery and D3 JavaScript libraries are both available for use.</li>
             <li>The provided SVG for visualization has an id of "viz".</li>
-            <li>(Coming soon!) The variable <code>queryOutput</code> contains the query results in JSON format.</li>
+            <li>The variable <code>queryOutput</code> contains the query results in JSON format.</li>
         </ul>
 	
 		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
