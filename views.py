@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 import os
 import sys
+import html
 import json
 import time
 import string
@@ -81,7 +82,7 @@ def runcode(request, **kwargs):
         jsonlist = []
 
         for row in results:
-            html += "<tr>%s</tr>" % ''.join('<td>%s</td>' % val for val in row)
+            html += "<tr>%s</tr>" % ''.join('<td>%s</td>' % html.escape(val) for val in row)
             jsonlist.append({key:str(val) for key,val in zip(headers, row)})
 
         html += "</table>"
