@@ -26,7 +26,8 @@ def TNBDE_view(request, **kwargs):
 
     if "code" in kwargs:
         try:
-            filepath = os.path.join("transcriptAnalyzer","queries",kwargs["code"])
+            pathpref = "/home/elendia/webapps/ppcg/PPCG/" if sys.platform == 'linux' else ""
+            filepath = os.path.join(pathpref+"transcriptAnalyzer","queries",kwargs["code"])
             context["sql"] = open(filepath+"In.txt", 'r', encoding='utf-8').read()[31:]
             context["js"] = open(filepath+"JS.txt", 'r', encoding='utf-8').read()
         except FileNotFoundError as e:
