@@ -9,9 +9,11 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 import os
 import sys
+import json
 import time
 import string
 import random
+import psycopg2
 from subprocess import call
 
 # Create your views here.
@@ -40,27 +42,49 @@ def runcode(request, **kwargs):
     filepath = os.path.join("transcriptAnalyzer","queries",filename)
 
     f = open(filepath + "In.txt", 'w', encoding='utf-8')
-    f.write('SET statement_timeout TO 1000;\n' + request.POST['query'])
+    querystring = 'SET statement_timeout TO 1000;\n' + request.POST['query']
+    f.write(querystring)
     f.close()
 
     f = open(filepath + "JS.txt", 'w', encoding='utf-8')
     f.write(request.POST['javascript'])
     f.close()
 
-    if sys.platform == 'win32':
-        pathtopsql = r"C:\Program Files\PostgreSQL\9.4\bin\psql"
-    elif sys.platform == 'linux':
-        pathtopsql = r""
+    data = {}
+    data['filename'] = filename
+    data['error'] = ""
+    data['results_html'] = ""
+    data['results_json'] = ""
 
-    command = [pathtopsql, "--html", "-U", "TAAnon", "PPCG_transcript",
-               "<",  filepath + "In.txt",
-               ">",  filepath + "Out.txt",
-               "2>", filepath + "Err.txt"]
-    exitCode = call(command, shell=True)#, env={'PATH': os.getenv('PATH')})
-    print("exitCode:",exitCode)
-    time.sleep(1)
+    con = psycopg2.connect(database="PPCG_transcript",
+                           user="TAAnon",
+                           password="foobar",
+                           host="127.0.0.1",
+                           port="5432")
+    cur = con.cursor()
+    error = ""
 
-    result = open(filepath + "Out.txt", 'r', encoding='utf-8').read()
-    result_err = open(filepath + "Err.txt", 'r', encoding='utf-8').read()
+    try:
+        cur.execute(querystring)
+    except psycopg2.ProgrammingError as e:
+        con.rollback()
+        error = str(e)
 
-    return HttpResponse(filename + result[11:] if not result_err else result_err, content_type="text/utf8")
+    if error:
+        data["error"] = error
+    else:
+        results = cur.fetchall()
+        headers = [column.name for column in cur.description]
+        html = "<table border='1'><tr>%s</tr>" % ''.join('<th>%s</th>' % header for header in headers)
+        jsonlist = []
+
+        for row in results:
+            html += "<tr>%s</tr>" % ''.join('<td>%s</td>' % val for val in row)
+            jsonlist.append({key:str(val) for key,val in zip(headers, row)})
+
+        html += "</table>"
+
+        data["results_html"] = html
+        data["results_json"] = json.dumps(jsonlist)
+
+    return HttpResponse(json.dumps(data), content_type="text/json")

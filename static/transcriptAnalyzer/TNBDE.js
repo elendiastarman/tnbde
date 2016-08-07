@@ -1,3 +1,5 @@
+var queryOutput;
+
 function run_code(){
     var runsql = $('#run-sql').prop('checked');
     var runjs = $('#run-js').prop('checked');
@@ -14,17 +16,19 @@ function run_code(){
                 $('#run-button').prop('disabled',false);
                 $('#query-output').children().remove();
                 
-                var code = response.slice(0,10); //10 is how long the filename is, server-side
-                response = response.slice(10);
+                var data = JSON.parse(response);
+                error = data['error']
                 
-                if(response[0] === '<'){
-                    $('#query-output').append($(response));
-                    $('#permalink').attr('href', location.origin+'/'+code);
+                if(error === ''){
+                    $('#query-output').append($(data['results_html']));
+                    $('#permalink').attr('href', location.origin+'/'+data['filename']);
                     $('#permalink').prop('hidden', false);
+                    
+                    queryOutput = JSON.parse(data['results_json']);
                     
                     if(runjs){ Function($("#javascript").val())(); }
                 } else {
-                    $('#query-output').append($('<pre class="error">'+response+'</pre>'));
+                    $('#query-output').append($('<pre class="error">'+data['error']+'</pre>'));
                 }
             },
             failure: function(response) {
