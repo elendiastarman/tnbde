@@ -78,16 +78,16 @@ def runcode(request, **kwargs):
     else:
         results = cur.fetchall()
         headers = [column.name for column in cur.description]
-        html = "<table border='1'><tr>%s</tr>" % ''.join('<th>%s</th>' % header for header in headers)
+        htmlstr = "<table border='1'><tr>%s</tr>" % ''.join('<th>%s</th>' % header for header in headers)
         jsonlist = []
 
         for row in results:
-            html += "<tr>%s</tr>" % ''.join('<td>%s</td>' % html.escape(val) for val in row)
+            htmlstr += "<tr>%s</tr>" % ''.join('<td>%s</td>' % html.escape(val) for val in row)
             jsonlist.append({key:str(val) for key,val in zip(headers, row)})
 
         html += "</table>"
 
-        data["results_html"] = html
+        data["results_html"] = htmlstr
         data["results_json"] = json.dumps(jsonlist)
 
     con.close()
