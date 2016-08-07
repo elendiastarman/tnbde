@@ -40,8 +40,8 @@ class parser(hp.HTMLParser):
             if len(attrs) == 0 or attrs[0][0] != "class": return
 
             if attrs[0][1].startswith("monologue"):
-                uid = int(attrs[0][1][15:].rstrip(" mine"))
-                self.currUser = uid
+                uid = attrs[0][1][15:].rstrip(" mine")
+                self.currUser = int(uid) if uid else None
                 if uid not in self.names:
                     self.state = "need name"
                 
@@ -110,6 +110,7 @@ class parser(hp.HTMLParser):
 
         elif self.state == "get name":
             self.state = ""
+            if not self.currUser: self.currUser = int(data.strip()[4:])
             self.names[self.currUser] = data.strip()
 
         elif self.state == "get time":
