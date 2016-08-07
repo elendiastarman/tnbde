@@ -82,7 +82,7 @@ def runcode(request, **kwargs):
         jsonlist = []
 
         for row in results:
-            htmlstr += "<tr>%s</tr>" % ''.join('<td>%s</td>' % html.escape(val) for val in row)
+            htmlstr += "<tr>%s</tr>" % ''.join('<td>%s</td>' % (html.escape(val) if type(val) == str else val) for val in row)
             jsonlist.append({key:str(val) for key,val in zip(headers, row)})
 
         htmlstr += "</table>"
