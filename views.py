@@ -45,7 +45,7 @@ def runcode(request, **kwargs):
     filepath = os.path.join(pathpref+"transcriptAnalyzer","queries",filename)
 
     f = open(filepath + "In.txt", 'w', encoding='utf-8')
-    querystring = 'SET statement_timeout TO 1000;\n' + request.POST['query']
+    querystring = 'SET statement_timeout TO 10000;\n' + request.POST['query']
     f.write(querystring)
     f.close()
 
@@ -69,7 +69,7 @@ def runcode(request, **kwargs):
 
     try:
         cur.execute(querystring)
-    except psycopg2.ProgrammingError as e:
+    except (psycopg2.ProgrammingError, psycopg2.QueryCanceledError) as e:
         con.rollback()
         error = str(e)
 

@@ -5,7 +5,8 @@ function run_code(){
     var runjs = $('#run-js').prop('checked');
     
     if(runsql){
-		$('#run-button').prop('disabled',false);
+		$('#run-button').prop('disabled',true);
+        $('#qout').html("Query output: <em>running...</em>");
         
         $.ajax({
             url: '/runcode',
@@ -15,6 +16,7 @@ function run_code(){
             success: function(response) {
                 $('#run-button').prop('disabled',false);
                 $('#query-output').children().remove();
+                $('#qout').html("Query output: <em>done!</em>");
                 
                 var data = JSON.parse(response);
                 error = data['error']
