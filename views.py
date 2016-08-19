@@ -36,6 +36,9 @@ def TNBDE_view(request, **kwargs):
 
     return render(request, 'transcriptAnalyzer/TNBDE.html', context=context)
 
+def TNBDE_usefulqueries_view(request, **kwargs):
+    return render(request, 'transcriptAnalyzer/TNBDE_usefulqueries.html')
+
 @csrf_exempt
 def runcode(request, **kwargs):
     context = RequestContext(request)
@@ -82,7 +85,21 @@ def runcode(request, **kwargs):
         jsonlist = []
 
         for row in results:
-            htmlstr += "<tr>%s</tr>" % ''.join('<td>%s</td>' % (html.escape(val) if type(val) == str else val) for val in row)
+            htmlstr += "<tr>"
+
+            for i,val in enumerate(row):
+                thingy = ""
+                if headers[i] == "mid":
+                    midurl = "http://chat.stackexchange.com/transcript/message/%s#%s" % (val, val)
+                    htmlstr += "<td><a href=\"%s\">%s</a></td>" % (midurl, val)
+                elif headers[i] == "uid":
+                    uidurl = "http://chat.stackexchange.com/users/%s" % val
+                    htmlstr += "<td><a href=\"%s\">%s</a></td>" % (uidurl, val)
+                else:
+                    htmlstr += "<td>%s</td>" % html.escape(str(val))
+
+            htmlstr += "</tr>"
+            
             jsonlist.append({key:str(val) for key,val in zip(headers, row)})
 
         htmlstr += "</table>"
