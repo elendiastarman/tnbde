@@ -95,6 +95,8 @@ def runcode(request, **kwargs):
                 elif headers[i] == "uid":
                     uidurl = "http://chat.stackexchange.com/users/%s" % val
                     htmlstr += "<td><a href=\"%s\">%s</a></td>" % (uidurl, val)
+                elif headers[i] == "content_rendered":
+                    htmlstr += "<td>%s</td>" % val
                 else:
                     htmlstr += "<td>%s</td>" % html.escape(str(val))
 
