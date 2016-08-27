@@ -246,8 +246,8 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
 
     Message.objects.bulk_create(messagesToCreate)
 
-def parseDays(start, end=datetime.date.today()):
-    while start <= datetime.date.today():
+def parseDays(start, end=datetime.datetime.today()):
+    while start <= end:
         parseConvos(240, start.year, start.month, start.day, start.hour, start.hour+1)
         print(start)
         start += datetime.timedelta(1/24)
