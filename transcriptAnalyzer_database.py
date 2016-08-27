@@ -135,7 +135,12 @@ class orderedList(list):
     
     def __contains__(self, item):
         low = 0
-        high = len(self.items)
+        high = len(self.items)-1
+
+        if high == -1:
+            return False
+        elif high == 0:
+            return self.items[0] == item
         
         while high - low > 1:
             mid = (low+high)//2
