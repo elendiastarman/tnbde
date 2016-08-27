@@ -21,7 +21,14 @@ from subprocess import call
 def TNBDE_view(request, **kwargs):
     context = {}#RequestContext(request)
 
-    context["sql"] = "SELECT content FROM \"transcriptAnalyzer_message\" WHERE onebox = FALSE AND date = '2016-07-27';"
+    context["sql"] = """SELECT *
+
+FROM "transcriptAnalyzer_message"
+
+WHERE date = '2016-08-01'
+  AND time = '12:00 AM'
+
+ORDER BY mid;"""
     context["js"] = ""
     context["error"] = False
 

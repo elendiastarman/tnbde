@@ -23,7 +23,10 @@ class parser(hp.HTMLParser):
     def handle_starttag(self, tag, attrs):
         if self.state == "content":
             if tag != "div":
-                self.currMess["content"] += "<%s>"%tag
+                self.currMess["content"] += "<%s %s>" % (tag, ' '.join('%s="%s"' % attr for attr in attrs))
+            elif tag == "span" and attrs and attrs[0] == ['class', 'deleted']:
+                self.currMess["removed"] = True
+                self.currMess["content"] = "(removed)"
             else:
                 self.currMess["onebox"] = attrs[0][1][10:] #takes out 'onebox ob-'
                 self.state = "onebox"
@@ -71,7 +74,10 @@ class parser(hp.HTMLParser):
             elif attrs[0][1] == "timestamp":
                 self.state = "get time"
 
-        elif tag == "span" and len(attrs) and attrs[0] == ('class','times'):
+        elif tag == "span" and len(attrs) and attrs[0][0] == 'class' and 'stars' in attrs[0][1]:
+            self.state = "has stars"
+
+        elif self.state == "has stars" and tag == "span" and len(attrs) and attrs[0] == ('class','times'):
             self.state = "get stars"
 
     def handle_endtag(self, tag):
@@ -120,7 +126,27 @@ class parser(hp.HTMLParser):
         elif self.state == "get stars":
             self.state = ""
             data = data.strip()
-            self.currMess['stars'] = int(data) if data else 0
+            self.currMess['stars'] = int(data) if data else 1
+
+class orderedList(list):
+    def __init__(self, L):
+        self.items = list(sorted(L))
+    
+    def __contains__(self, item):
+        low = 0
+        high = len(self.items)
+        
+        while high - low > 1:
+            mid = (low+high)//2
+
+            if self.items[mid] == item:
+                return True
+            elif self.items[mid] < item:
+                low = mid
+            else:
+                high = mid
+
+        return self.items[low] == item or self.items[high] == item
 
 def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4, debug=0, log=0):
     urlTemp = "http://chat.stackexchange.com/transcript/"+"{}/"*4+"{}-{}"
@@ -137,10 +163,11 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
     messNum = 0
     messagesToCreate = []
 
+    midsInDB = orderedList(m.mid for m in Message.objects.all())
+
     for mid, message in p.messages.items():
         if debug & 2: print("messNum, mid: %s, %s" % (messNum, mid))
         messNum += 1
-##        print(mid, message)
         
         uid = message['uid']
         rid = message['rid']
@@ -148,6 +175,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
         stars = message['stars']
         onebox = message['onebox']
         content = message['content']
+        deleted = message['deleted']
         timestamp = message['timestamp']
 
         if uid not in users:
@@ -175,6 +203,8 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
             pass
 
         try:
+            if mid not in midsInDB: raise ObjectDoesNotExist
+            
             message = Message.objects.get(mid=mid)
             
             if message.content != content or message.name != name or message.stars != stars:
@@ -182,6 +212,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
                 message.name = name
                 message.stars = stars
                 message.content = content
+                message.deleted = deleted
                 message.onebox = bool(onebox)
                 message.oneboxType = onebox
 
@@ -201,6 +232,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
             message.name = name
             message.stars = stars
             message.content = content
+            message.deleted = deleted
             message.onebox = bool(onebox)
             message.oneboxType = onebox
             
