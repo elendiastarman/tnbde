@@ -248,6 +248,6 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
 
 def parseDays(start, end=datetime.date.today()):
     while start <= datetime.date.today():
-        parseConvos(240, start.year, start.month, start.day, 0, 24)
+        parseConvos(240, start.year, start.month, start.day, start.hour, start.hour+1)
         print(start)
-        start += datetime.timedelta(1)
+        start += datetime.timedelta(1/24)
