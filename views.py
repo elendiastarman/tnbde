@@ -73,7 +73,7 @@ def runcode(request, **kwargs):
                            user="TAAnon" if sys.platform == 'win32' else "taanon",
                            password="foobar",
                            host="127.0.0.1",
-                           port="5432")
+                           port="20526")
     cur = con.cursor()
     error = ""
 
