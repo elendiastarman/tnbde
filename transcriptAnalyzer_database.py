@@ -56,6 +56,7 @@ class parser(hp.HTMLParser):
                                       'stars':0,
                                       'onebox':"",
                                       'content':"",
+                                      'deleted':False,
                                       'timestamp':self.timestamp}
                 
                 self.currMess = self.messages[mid]

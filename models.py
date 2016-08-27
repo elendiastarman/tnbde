@@ -18,7 +18,7 @@ class Message(models.Model):
     time = models.TimeField(null=True,blank=True)
 
     content = models.TextField()
-    deleted = models.BooleanField()
+    deleted = models.BooleanField(default=False)
     name = models.CharField(max_length=200, null=True,blank=True)
     stars = models.IntegerField(default=0)
     onebox = models.BooleanField(default=False)
