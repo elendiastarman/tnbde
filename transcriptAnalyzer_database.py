@@ -24,9 +24,6 @@ class parser(hp.HTMLParser):
         if self.state == "content":
             if tag != "div":
                 self.currMess["content"] += "<%s %s>" % (tag, ' '.join('%s="%s"' % attr for attr in attrs))
-            elif tag == "span" and attrs and attrs[0] == ['class', 'deleted']:
-                self.currMess["removed"] = True
-                self.currMess["content"] = "(removed)"
             else:
                 self.currMess["onebox"] = attrs[0][1][10:] #takes out 'onebox ob-'
                 self.state = "onebox"
@@ -37,8 +34,7 @@ class parser(hp.HTMLParser):
 
         elif tag in ("div","a"):
             if 1 and self.debug:
-                print("tag:",tag)
-                print("attrs:",attrs)
+                print("tag, attrs:",tag,attrs)
 
             if len(attrs) == 0 or attrs[0][0] != "class": return
 
@@ -50,13 +46,13 @@ class parser(hp.HTMLParser):
                 
             elif attrs[0][1] == "message":
                 mid = int(attrs[1][1].split('-')[1])
+                print(mid)
                 self.messages[mid] = {'uid':self.currUser,
                                       'rid':None,
                                       'name':self.names[self.currUser],
                                       'stars':0,
                                       'onebox':"",
                                       'content':"",
-                                      'deleted':False,
                                       'timestamp':self.timestamp}
                 
                 self.currMess = self.messages[mid]
@@ -165,11 +161,14 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
     p = parser(debug=debug & 1)
     p.feed(text)
 
+    return
+
     users = {}
     messNum = 0
     messagesToCreate = []
 
-    midsInDB = orderedList(m.mid for m in Message.objects.all())
+    msgsInDB = Message.objects.filter(mid__in=p.messages.keys())
+    midsInDB = [m.mid for m in msgsInDB]
 
     for mid, message in p.messages.items():
         if debug & 2: print("messNum, mid: %s, %s" % (messNum, mid))
@@ -181,7 +180,6 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
         stars = message['stars']
         onebox = message['onebox']
         content = message['content']
-        deleted = message['deleted']
         timestamp = message['timestamp']
 
         if uid not in users:
@@ -209,7 +207,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
             pass
 
         try:
-            if mid not in midsInDB: raise ObjectDoesNotExist
+            if mid not in msgsInDB: raise ObjectDoesNotExist
             
             message = Message.objects.get(mid=mid)
             
@@ -218,7 +216,6 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
                 message.name = name
                 message.stars = stars
                 message.content = content
-                message.deleted = deleted
                 message.onebox = bool(onebox)
                 message.oneboxType = onebox
 
@@ -238,7 +235,6 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
             message.name = name
             message.stars = stars
             message.content = content
-            message.deleted = deleted
             message.onebox = bool(onebox)
             message.oneboxType = onebox
             
@@ -248,6 +244,6 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
 
 def parseDays(start, end=datetime.datetime.today()):
     while start <= end:
-        parseConvos(240, start.year, start.month, start.day, start.hour, start.hour+1)
+        parseConvos(240, start.year, start.month, start.day, 0, 24)
         print(start)
-        start += datetime.timedelta(1/24)
+        start += datetime.timedelta(1)
