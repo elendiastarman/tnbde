@@ -1,5 +1,9 @@
 var queryOutput;
 
+$(function(){
+    fetch_code();
+});
+
 function run_code(){
     var runsql = $('#run-sql').prop('checked');
     var runjs = $('#run-js').prop('checked');
@@ -23,9 +27,15 @@ function run_code(){
                 
                 if(error === ''){
                     $('#query-output').append($(data['results_html']));
-                    $('#permalink').attr('href', location.origin+'/'+data['filename']);
+                    
+                    if(location.pathname.substring(0,7) !== '/tnbde/') {
+                        location.pathname = '/tnbde/#'+data['filename'];
+                    } else {
+                        location.hash = '#'+data['filename'];
+                    }
+                    
+                    $('#permalink').attr('href', location.href);
                     $('#permalink').prop('hidden', false);
-                    location.pathname = '/'+data['filename'];
                     
                     queryOutput = JSON.parse(data['results_json']);
                     
@@ -41,6 +51,35 @@ function run_code(){
         });
     } else if(runjs){
         Function($("#javascript").val())();
+    }
+}
+
+function fetch_code(){
+    if(location.hash){
+        $.ajax({
+            url: '/tnbde/fetch/'+location.hash.substring(1),
+            type: 'get',
+            data: {},
+            dataType: 'html',
+            success: function(response) {
+                var data = JSON.parse(response);
+                error = data['error']
+                
+                if(!error){
+                    $('#sql').val(data['sql'].substring(1));
+                    $('#js').val(data['js'].substring(1));
+                    
+                    run_code();
+                } else {
+                    $('#permalink-error').prop('hidden', false);
+                }
+            },
+            failure: function(response) {
+                $('#permalink-error').prop('hidden', false);
+            }
+        });
+    } else {
+        if(location.pathname.substring(0,7) !== '/tnbde/'){ location.hash = '#'+location.pathname.substring(1); location.pathname = '/tnbde/'; }
     }
 }
 

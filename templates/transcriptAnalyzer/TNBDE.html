@@ -25,7 +25,7 @@
 		<h1>The Nineteenth Byte Data Explorer</h1>
 		<p id="desc">A data explorer for <a href="http://chat.stackexchange.com/rooms/240/the-nineteenth-byte">The Nineteenth Byte</a>.</p>
         
-        {% if error %}<p style="color: red; font-weight: bold;">Error: invalid permalink.</p>{% endif %}
+        <p style="color: red; font-weight: bold;" id="permalink-error" {% if not error %}hidden{% endif %}>Error: invalid permalink.</p>
 		
         <p>Enter your SQL query here:</p>
         <textarea id="sql">{{sql}}</textarea>

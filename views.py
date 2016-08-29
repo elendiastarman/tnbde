@@ -41,10 +41,16 @@ ORDER BY mid;"""
         except FileNotFoundError as e:
             context["error"] = True
 
-    return render(request, 'transcriptAnalyzer/TNBDE.html', context=context)
+    if "fetch" in kwargs:
+        return HttpResponse(json.dumps(context), content_type="text/json")
+    else:
+        return render(request, 'transcriptAnalyzer/TNBDE.html', context=context)
 
 def TNBDE_usefulqueries_view(request, **kwargs):
     return render(request, 'transcriptAnalyzer/TNBDE_usefulqueries.html')
+
+def TNBDE_oldpermalink(request, **kwargs):
+    return HttpResponseRedirect(reverse('tnbde-permalink', args=(kwargs['code'],)))
 
 @csrf_exempt
 def runcode(request, **kwargs):
@@ -73,7 +79,7 @@ def runcode(request, **kwargs):
                            user="taanon",
                            password="foobar",
                            host="127.0.0.1",
-                           port="20526")
+                           port="5432" if sys.platform == "win32" else "20526")
     cur = con.cursor()
     error = ""
 
