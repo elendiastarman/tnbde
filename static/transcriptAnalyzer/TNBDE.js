@@ -27,6 +27,7 @@ function run_code(){
                 
                 if(error === ''){
                     $('#query-output').append($(data['results_html']));
+                    sorttable.makeSortable(document.getElementById('query-table'));
                     
                     if(location.pathname.substring(0,7) !== '/tnbde/') {
                         location.pathname = '/tnbde/#'+data['filename'];

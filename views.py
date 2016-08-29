@@ -94,7 +94,7 @@ def runcode(request, **kwargs):
     else:
         results = cur.fetchall()
         headers = [column.name for column in cur.description]
-        htmlstr = "<table border='1'><tr>%s</tr>" % ''.join('<th>%s</th>' % header for header in headers)
+        htmlstr = "<table border='1' class='sortable' id='query-table'><tr>%s</tr>" % ''.join('<th>%s</th>' % header for header in headers)
         jsonlist = []
 
         for row in results:
