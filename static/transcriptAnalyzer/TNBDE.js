@@ -25,6 +25,7 @@ function run_code(){
                     $('#query-output').append($(data['results_html']));
                     $('#permalink').attr('href', location.origin+'/'+data['filename']);
                     $('#permalink').prop('hidden', false);
+                    location.pathname = '/'+data['filename'];
                     
                     queryOutput = JSON.parse(data['results_json']);
                     
