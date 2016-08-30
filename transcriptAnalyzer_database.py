@@ -85,7 +85,9 @@ class parser(hp.HTMLParser):
                     self.currMess["content"] = self.currMess["content"][:-40]
                 else:
                     self.divNest -= 1
-                    self.currMess["content"] += "</div>"
+
+                    if self.divNest > 0:
+                        self.currMess["content"] += "</div>"
             else:
                 self.currMess["content"] += "</%s>"%tag
 
@@ -95,7 +97,9 @@ class parser(hp.HTMLParser):
                     self.state = ""
                 else:
                     self.divNest -= 1
-                self.currMess["content"] += "</div>"
+
+                if self.divNest > 0:
+                    self.currMess["content"] += "</div>"
             else:
                 self.currMess["content"] += "</%s>"%tag
 
@@ -242,8 +246,8 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
 
     Message.objects.bulk_create(messagesToCreate)
 
-def parseDays(start, end=datetime.datetime.today()):
+def parseDays(start, end=datetime.datetime.now()):
     while start <= end:
-        parseConvos(240, start.year, start.month, start.day, 0, 24)
+        parseConvos(240, start.year, start.month, start.day, start.hour, start.hour+1)
         print(start)
-        start += datetime.timedelta(1)
+        start += datetime.timedelta(1/24)
