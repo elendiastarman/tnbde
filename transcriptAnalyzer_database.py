@@ -46,7 +46,6 @@ class parser(hp.HTMLParser):
                 
             elif attrs[0][1] == "message":
                 mid = int(attrs[1][1].split('-')[1])
-                print(mid)
                 self.messages[mid] = {'uid':self.currUser,
                                       'rid':None,
                                       'name':self.names[self.currUser],
@@ -164,8 +163,6 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
 
     p = parser(debug=debug & 1)
     p.feed(text)
-
-    return
 
     users = {}
     messNum = 0
