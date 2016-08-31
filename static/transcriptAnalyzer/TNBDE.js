@@ -42,7 +42,7 @@ function run_code(){
                     
                     if(runjs){ Function($("#javascript").val())(); }
                 } else {
-                    $('#query-output').append($('<pre class="error">'+data['error']+'</pre>'));
+                    $('#query-output').append($('<pre class="error">'+escapeHtml(data['error'])+'</pre>'));
                 }
             },
             failure: function(response) {
@@ -87,3 +87,12 @@ function fetch_code(){
 function setVisCode(){
     window["visualize"] = new Function($("#javascript").val());
 }
+
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+ }
