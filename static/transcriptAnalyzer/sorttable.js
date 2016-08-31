@@ -134,7 +134,7 @@ sorttable = {
           this.className += ' sorttable_sorted';
           sortfwdind = document.createElement('span');
           sortfwdind.id = "sorttable_sortfwdind";
-          sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;&#x25BE;';
+          sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;&#x25B4;';
           this.appendChild(sortfwdind);
 
 	        // build an array to sort. This is a Schwartzian transform thing,
