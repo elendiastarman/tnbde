@@ -85,7 +85,7 @@ def runcode(request, **kwargs):
 
     try:
         cur.execute(querystring)
-    except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError) as e:
+    except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError) as e:
         con.rollback()
         error = str(e)
 
