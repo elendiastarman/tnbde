@@ -208,7 +208,7 @@ def parseConvos(roomNum=240, year=2016, month=3, day=23, hourStart=0, hourEnd=4,
             pass
 
         try:
-            if mid not in msgsInDB: raise ObjectDoesNotExist
+            if mid not in midsInDB: raise ObjectDoesNotExist
             
             message = Message.objects.get(mid=mid)
             
