@@ -15,7 +15,7 @@ function run_code(){
         $.ajax({
             url: '/runcode',
             type: 'post',
-            data: {'query':$('#sql').val(), 'javascript':$('#js').val()},
+            data: {'query':$('#sql').val(), 'javascript':$('#javascript').val()},
             dataType: 'html',
             success: function(response) {
                 $('#run-button').prop('disabled',false);
@@ -68,7 +68,7 @@ function fetch_code(){
                 
                 if(!error){
                     $('#sql').val(data['sql'].substring(1));
-                    $('#js').val(data['js'].substring(1));
+                    $('#javascript').val(data['js'].substring(1));
                     
                     run_code();
                 } else {
