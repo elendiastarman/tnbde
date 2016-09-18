@@ -25,10 +25,9 @@ def TNBDE_view(request, **kwargs):
 
 FROM "transcriptAnalyzer_message"
 
-WHERE date = '2016-08-01'
-  AND time = '12:00 AM'
+ORDER BY mid DESC
 
-ORDER BY mid;"""
+LIMIT 10;"""
     context["js"] = ""
     context["error"] = False
 
