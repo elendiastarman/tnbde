@@ -40,7 +40,10 @@ function run_code(){
                     
                     queryOutput = JSON.parse(data['results_json']);
                     
-                    if(runjs){ Function($("#javascript").val())(); }
+                    if(runjs){
+                        $('svg').children().remove();
+                        Function($("#javascript").val())();
+                    }
                 } else {
                     $('#query-output').append($('<pre class="error">'+escapeHtml(data['error'])+'</pre>'));
                 }
