@@ -75,6 +75,11 @@ function fetch_code(){
                     $('#javascript').val(data['js']);
                     
                     run_code();
+                    
+                    if(data['js']){
+                        $('#run-sql').prop('checked', false);
+                        $('#run-js').prop('checked', true);
+                    }
                 } else {
                     $('#permalink-error').prop('hidden', false);
                 }
