@@ -67,8 +67,8 @@ function fetch_code(){
                 error = data['error']
                 
                 if(!error){
-                    $('#sql').val(data['sql'].substring(1));
-                    $('#javascript').val(data['js'].substring(1));
+                    $('#sql').val(data['sql']);
+                    $('#javascript').val(data['js']);
                     
                     run_code();
                 } else {

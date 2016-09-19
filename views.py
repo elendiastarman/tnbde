@@ -35,7 +35,7 @@ LIMIT 10;"""
         try:
             pathpref = "/home/elendia/webapps/ppcg/PPCG/" if sys.platform == 'linux' else ""
             filepath = os.path.join(pathpref+"transcriptAnalyzer","queries",kwargs["code"])
-            context["sql"] = open(filepath+"In.txt", 'r', encoding='utf-8').read()[31:]
+            context["sql"] = open(filepath+"In.txt", 'r', encoding='utf-8').read()[32:]
             context["js"] = open(filepath+"JS.txt", 'r', encoding='utf-8').read()
         except FileNotFoundError as e:
             context["error"] = True
