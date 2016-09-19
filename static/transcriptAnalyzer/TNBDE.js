@@ -54,6 +54,7 @@ function run_code(){
             }
         });
     } else if(runjs){
+        $('svg').children().remove();
         Function($("#javascript").val())();
     }
 }
