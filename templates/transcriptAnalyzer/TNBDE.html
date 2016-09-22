@@ -55,7 +55,7 @@
         <h2>Notes:</h2>
         <ul>
             <li>The underlying database engine is PostgreSQL.</li>
-            <li>Query execution time is currently limited to 1 second, and only read-only operations are allowed.</li>
+            <li>Query execution time is currently limited to 10 seconds, and only read-only operations are allowed.</li>
             <li>There are currently three tables (all prepended with <code>transcriptAnalyzer_</code>, possibly to be fixed later):
                 <ul>
                     <li><code>user</code>, which has two columns: <code>id</code> (internal user id) and <code>uid</code> (SE chat id, auto-linked);</li>
@@ -78,7 +78,7 @@
                 </ul>
             </li>
             <li>Normally, the <code>content</code> column is escaped, so you see the raw HTML. You can name it <code>content_rendered</code> to not escape the HTML, but beware that it will look wrong due to the lack of supporting CSS, images will be at full size, there might be other issues, and finally, may be unsafe.</li>
-            <li>The jQuery (version 1.10.2) and D3 (version 4.0) JavaScript libraries are both available for use.</li>
+            <li>The jQuery (version 1.10.2), D3 (version 4.0), and Plotly (latest version) JavaScript libraries are all available for use.</li>
             <li>The provided SVG for visualization has an id of "viz".</li>
             <li>The variable <code>queryOutput</code> contains the query results in JSON format.</li>
         </ul>
@@ -87,6 +87,7 @@
 	
 		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 		<script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script src="{% static 'transcriptAnalyzer/TNBDE.js' %}"></script>
 		<script src="{% static 'transcriptAnalyzer/sorttable.js' %}"></script>
 		
