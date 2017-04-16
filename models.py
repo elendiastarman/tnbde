@@ -41,6 +41,7 @@ class Inquiry(models.Model):
     shortcode = models.CharField(max_length=10)
     query = models.ForeignKey(Query)
     js = models.TextField()
+    sha1 = models.CharField(max_length=40)
 
 
 class Snapshot(models.Model):

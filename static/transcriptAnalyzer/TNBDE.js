@@ -30,9 +30,9 @@ function run_code(){
                     sorttable.makeSortable(document.getElementById('query-table'));
                     
                     if(location.pathname.substring(0,7) !== '/tnbde/') {
-                        location.pathname = '/tnbde/#'+data['filename'];
+                        location.pathname = '/tnbde/#'+data['shortcode'];
                     } else {
-                        location.hash = '#'+data['filename'];
+                        location.hash = '#'+data['shortcode'];
                     }
                     
                     $('#permalink').attr('href', location.href);
