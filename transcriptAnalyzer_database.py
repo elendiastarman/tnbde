@@ -32,7 +32,7 @@ class Parser(hp.HTMLParser):
                 return
 
             if attrs[0][1].startswith("monologue"):
-                uid = re.search('(\d+)', attrs[0][1]).group()
+                uid = attrs[0][1].split('-', maxsplit=1)[1]
                 self.curr_user = int(uid) if uid else None
                 if uid not in self.names:
                     self.state = "need name"
