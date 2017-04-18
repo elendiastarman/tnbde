@@ -173,11 +173,18 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                     Thread(target=retry_wrapper(cont(mid), 'content', mid, log & 1)),
                     Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 1))]
 
-    for t in threads:
-        t.start()
+    counter = 0
+    chunk_size = 50
+    threads_to_run = []
+    while counter < len(threads):
+        threads_to_run = threads[counter:counter + chunk_size]
+        counter += chunk_size
 
-    for t in threads:
-        t.join()
+        for t in threads_to_run:
+            t.start()
+
+        for t in threads_to_run:
+            t.join()
 
     ##############
 
