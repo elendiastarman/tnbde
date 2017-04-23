@@ -199,7 +199,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     mark = lambda n: lambda: markdowns.setdefault(n, ur.urlopen('https://chat.stackexchange.com/messages/{}/{}'.format(room_num, n)).read().decode('utf-8'))
     threads = []
 
-    for mid in transcript.messages:
+    for mid in transcript_mids:
         threads += [Thread(target=retry_wrapper(hist(mid), 'history', mid, log & 1)),
                     Thread(target=retry_wrapper(cont(mid), 'content', mid, log & 1)),
                     Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 1))]
