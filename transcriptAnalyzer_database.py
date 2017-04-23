@@ -179,9 +179,12 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if debug & 4:
         print("Starting the threads...")
     counter = 0
-    chunk_size = 50
+    chunk_size = 30
     threads_to_run = []
     while counter < len(threads):
+        if debug & 8:
+            print("Running threads {}-{}...".format(counter, counter + chunk_size), end='')
+
         threads_to_run = threads[counter:counter + chunk_size]
         counter += chunk_size
 
@@ -190,6 +193,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
         for t in threads_to_run:
             t.join()
+
+        if debug & 8:
+            print("  Done!")
 
     if debug & 4:
         print("Threads are done!")
