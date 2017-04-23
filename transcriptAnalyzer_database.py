@@ -162,7 +162,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if len(transcript.messages) == 0:
         return
 
-    transcript_message_ids = sorted(list(transcript.messages.keys()))
+    transcript_mids = sorted(list(transcript.messages.keys()))
 
     # users
     transcript_uids = set(m['uid'] for m in transcript.messages.values())
@@ -282,7 +282,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             msg.pop('uid')
             transcript_msgs[mid] = msg
 
-        msgs_in_db = Message.objects.filter(mid__gte=transcript_mids[0], mid__lte=transcript_mids[-1])
+        msgs_in_db = Message.objects.filter(mid__gte=chunk_mids[0], mid__lte=chunk_mids[-1])
         mids_in_db = [m.mid for m in msgs_in_db]
 
         message_num = 0
