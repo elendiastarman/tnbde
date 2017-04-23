@@ -162,6 +162,38 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if len(transcript.messages) == 0:
         return
 
+    transcript_message_ids = sorted(list(transcript.messages.keys()))
+
+    # users
+    transcript_uids = set(m['uid'] for m in transcript.messages.values())
+    users_in_db = User.objects.filter(uid__in=transcript_uids)
+    uids_in_db = set(u.uid for u in users_in_db)
+
+    for new_uid in transcript_uids - uids_in_db:
+        User(uid=new_uid, latest_msg=0, latest_name='').save()
+
+    users_in_db = User.objects.filter(uid__in=transcript_uids)
+
+    if debug & 4:
+        print("User objects are done!")
+
+    # usernames
+    for mid, msg in transcript.messages.items():
+        user = users_in_db.get(uid=msg['uid'])
+
+        if not Username.objects.filter(user=user.id, name=msg['name']).exists():
+            Username(user=user, name=msg['name']).save()
+            user.latest_name = msg['name']
+            user.latest_msg = mid
+            user.save()
+        elif mid > user.latest_msg:
+            user.latest_name = msg['name']
+            user.latest_msg = mid
+            user.save()
+
+    if debug & 4:
+        print("Username objects are done!")
+
     hist = lambda n: lambda: histories.setdefault(n, ur.urlopen('https://chat.stackexchange.com/messages/{}/history'.format(n)).read().decode('utf-8'))
     cont = lambda n: lambda: contents.setdefault(n, ur.urlopen('https://chat.stackexchange.com/message/{}'.format(n)).read().decode('utf-8'))
     mark = lambda n: lambda: markdowns.setdefault(n, ur.urlopen('https://chat.stackexchange.com/messages/{}/{}'.format(room_num, n)).read().decode('utf-8'))
@@ -176,7 +208,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         print("Starting the threads... ({} of them)".format(len(threads)))
 
     db_counter = 0
-    db_chunk_size = 300
+    db_chunk_size = 250
 
     while db_counter < len(threads):
         if debug & 8:
@@ -187,7 +219,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         markdowns = {}
         transcript_msgs = {}
 
-        thread_chunk = threads[db_counter:db_counter + db_chunk_size]
+        thread_chunk = threads[3 * db_counter:3 * (db_counter + db_chunk_size)]
+        chunk_mids = transcript_mids[db_counter:db_counter + db_chunk_size]
+
         db_counter += db_chunk_size
 
         thread_counter = 0
@@ -214,41 +248,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
         ##############
 
-        # users
-        transcript_uids = set(m['uid'] for m in transcript.messages.values())
-        users_in_db = User.objects.filter(uid__in=transcript_uids)
-        uids_in_db = set(u.uid for u in users_in_db)
-
-        for new_uid in transcript_uids - uids_in_db:
-            User(uid=new_uid, latest_msg=0, latest_name='').save()
-
-        users_in_db = User.objects.filter(uid__in=transcript_uids)
-
-        if debug & 8:
-            print("User objects are done!")
-
-        # usernames
-        for mid, msg in transcript.messages.items():
-            user = users_in_db.get(uid=msg['uid'])
-
-            if not Username.objects.filter(user=user.id, name=msg['name']).exists():
-                Username(user=user, name=msg['name']).save()
-                user.latest_name = msg['name']
-                user.latest_msg = mid
-                user.save()
-            elif mid > user.latest_msg:
-                user.latest_name = msg['name']
-                user.latest_msg = mid
-                user.save()
-
-        if debug & 8:
-            print("Username objects are done!")
-
-        # messages
-        transcript_mids = sorted(list(transcript.messages.keys()))
-
-        # build from transcript + history + content + markdown
-        for mid in transcript_mids:
+        # build messages from transcript + history + content + markdown
+        for mid in chunk_mids:
             # transcript
             msg = transcript.messages[mid].copy()
 
@@ -286,12 +287,15 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
         message_num = 0
         messages_to_create = []
-        for mid, message in transcript.messages.items():
+        for mid in chunk_mids:
+            message = transcript.messages[mid]
+
             if mid in mids_in_db:
                 mids_in_db.remove(mid)
 
             if debug & 2:
                 print("message_num, mid: {}, {}" .format(message_num, mid))
+
             message_num += 1
 
             if mid not in mids_in_db:
