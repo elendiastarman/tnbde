@@ -344,9 +344,12 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
 
 def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
     import subprocess
+    import time
     while start <= end:
-        run = 'python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, 0, 24, debug={})" > /home/elendia/webapps/ppcg/PPCG/update_day.txt 2> /home/elendia/webapps/ppcg/PPCG/update_day_err.txt'.format(start.year, start.month, start.day, debug)
+        run = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, 0, 24, debug={})" > /home/elendia/webapps/ppcg/PPCG/update_day.txt 2> /home/elendia/webapps/ppcg/PPCG/update_day_err.txt'.format(start.year, start.month, start.day, debug)
+        st = time.time()
         print("Starting subprocess with command `{}`".format(run))
-        print(subprocess.run(run))
+        print(subprocess.run(run, shell=True))
+        print("Elapsed time: {}".format(time.time() - st))
         print(start)
         start += datetime.timedelta(1)
