@@ -208,7 +208,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         print("Starting the threads... ({} of them)".format(len(threads)))
 
     db_counter = 0
-    db_chunk_size = 250
+    db_chunk_size = 100
 
     while db_counter < len(threads):
         if debug & 8:
