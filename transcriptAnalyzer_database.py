@@ -121,9 +121,11 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if debug & 2:
         print(url)
 
-    print("Getting transcript text for {}...".format(date))
+    if debug & 4:
+        print("Getting transcript text for {}...".format(date))
     transcript_text = ur.urlopen(url).read().decode('utf-8')
-    print("Transcript text fetched.")
+    if debug & 4:
+        print("Transcript text fetched.")
 
     #: Check for/against snapshot
     create_snapshot = False
@@ -146,7 +148,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         # print("compare_sha1: {}".format(compare_sha1))
 
         if snapshot and snapshot.sha1 == compare_sha1:  # nothing changed; don't need to do anything
-            print(date, snapshot.sha1, compare_sha1)
+            if debug & 4:
+                print(date, snapshot.sha1, compare_sha1)
             return
 
         # if snapshot and snapshot.sha1 != compare_sha1:
@@ -173,6 +176,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                     Thread(target=retry_wrapper(cont(mid), 'content', mid, log & 1)),
                     Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 1))]
 
+    if debug & 4:
+        print("Starting the threads...")
     counter = 0
     chunk_size = 50
     threads_to_run = []
@@ -186,6 +191,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         for t in threads_to_run:
             t.join()
 
+    if debug & 4:
+        print("Threads are done!")
     ##############
 
     # users
@@ -197,6 +204,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         User(uid=new_uid, latest_msg=0, latest_name='').save()
 
     users_in_db = User.objects.filter(uid__in=transcript_uids)
+
+    if debug & 4:
+        print("User objects are done!")
 
     # usernames
     for mid, msg in transcript.messages.items():
@@ -211,6 +221,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             user.latest_name = msg['name']
             user.latest_msg = mid
             user.save()
+
+    if debug & 4:
+        print("Username objects are done!")
 
     # messages
     transcript_mids = sorted(list(transcript.messages.keys()))
@@ -268,10 +281,16 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         else:
             msgs_in_db.filter(mid=mid).update(**transcript_msgs[mid])
 
+    if debug & 4:
+        print("Message stuff done!")
+
     # these were not in the transcript so should be deleted from the database
     Message.objects.filter(mid__in=mids_in_db).delete()
 
     Message.objects.bulk_create(messages_to_create)
+
+    if debug & 4:
+        print("Message table updated!")
 
     if create_snapshot or snapshot:
         # create or update snapshot
@@ -280,16 +299,19 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         snapshot.sha1 = compare_sha1
         snapshot.save()
 
+    if debug & 4:
+        print("Snapshot created!")
 
-def parse_days(start, end=datetime.datetime.now()):
+
+def parse_days(start, end=datetime.datetime.now(), debug=0):
     while start <= end:
-        parse_convos(240, start.year, start.month, start.day, 0, 24)
+        parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug)
         print(start)
         start += datetime.timedelta(1)
 
 
-def parse_hours(start, end=datetime.datetime.now()):
+def parse_hours(start, end=datetime.datetime.now(), debug=0):
     while start <= end:
-        parse_convos(240, start.year, start.month, start.day, start.hour, start.hour + 1)
+        parse_convos(240, start.year, start.month, start.day, start.hour, start.hour + 1, debug=debug)
         print(start)
         start += datetime.timedelta(1 / 24)
