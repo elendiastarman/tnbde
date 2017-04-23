@@ -340,3 +340,13 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
         parse_convos(240, start.year, start.month, start.day, start.hour, start.hour + 1, debug=debug)
         print(start)
         start += datetime.timedelta(1 / 24)
+
+
+def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
+    import subprocess
+    while start <= end:
+        run = 'python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, 0, 24, debug={})" > /home/elendia/webapps/ppcg/PPCG/update_day.txt 2> /home/elendia/webapps/ppcg/PPCG/update_day_err.txt'.format(start.year, start.month, start.day, debug)
+        print("Starting subprocess with command `{}`".format(run))
+        print(subprocess.run(run))
+        print(start)
+        start += datetime.timedelta(1)
