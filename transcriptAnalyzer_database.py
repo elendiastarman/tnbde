@@ -177,7 +177,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                     Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 1))]
 
     if debug & 4:
-        print("Starting the threads...")
+        print("Starting the threads... ({} of them)".format(len(threads)))
     counter = 0
     chunk_size = 30
     threads_to_run = []
