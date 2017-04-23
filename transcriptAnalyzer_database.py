@@ -210,9 +210,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     db_counter = 0
     db_chunk_size = 100
 
-    while db_counter < len(threads):
+    while db_counter * 3 < len(threads):
         if debug & 8:
-            print("Running DB chunk {}-{}".format(db_counter, db_counter + db_chunk_size))
+            print("Running DB chunk {}-{} (out of {})".format(db_counter, db_counter + db_chunk_size, len(threads) // 3))
 
         histories = {}
         contents = {}
