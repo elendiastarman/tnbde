@@ -333,13 +333,13 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
 
         print("Starting subprocess with command `{}`".format(command))
 
-        error_code = 1
+        return_code = 1
         runs = 1
 
-        while error_code:
+        while return_code:
             runs += 1
-            error_code = subprocess.run(command, shell=True)
-            if error_code:
+            return_code = subprocess.run(command, shell=True).returncode
+            if return_code:
                 print("Starting subprocess again; iteration {}".format(runs))
 
         print("Elapsed time: {}".format(time.time() - st))
