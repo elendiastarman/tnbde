@@ -104,7 +104,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if debug & 4:
         print("Transcript text fetched.")
 
-    if re.search('<div class="system-message">.*?no messages today.*?</div>', transcript_text, flags=re.DOTALL).group():
+    if re.search('<div class="system-message">.*?no messages today.*?</div>', transcript_text, flags=re.DOTALL):
         if debug & 4:
             print("No messages found.")
         return
