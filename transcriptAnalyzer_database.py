@@ -91,29 +91,6 @@ def retry_wrapper(func, name, mid, log=False):
     return wrapped_func
 
 
-# class Retriever:
-#     def __init__(self, mid, name, func, log=False):
-#         self.mid = mid
-#         self.name = name
-#         self.func = func(mid)
-#         self.log = log
-
-#     def __call__(self):
-#         success = False
-#         while not success:
-#             try:
-#                 self.func()
-#                 success = True
-#             except ur.URLError:
-#                 if self.log:
-#                     print("URLError for {}({})".format(self.name, self.mid))
-#                 time.sleep(1)
-#             except http.client.RemoteDisconnected:
-#                 if self.log:
-#                     print("RemoteDisconnected for {}({})".format(self.name, self.mid))
-#                 time.sleep(1)
-
-
 def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0):
     url = "http://chat.stackexchange.com/transcript/{}/{}/{}/{}/{}-{}".format(room_num, year, month, day, hour_start, hour_end)
     date = datetime.date(year, month, day)
@@ -126,6 +103,11 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     transcript_text = ur.urlopen(url).read().decode('utf-8')
     if debug & 4:
         print("Transcript text fetched.")
+
+    if re.search('<div class="system-message">.*?no messages today.*?</div>', transcript_text, flags=re.DOTALL).group():
+        if debug & 4:
+            print("No messages found.")
+        return
 
     #: Check for/against snapshot
     create_snapshot = False
@@ -229,7 +211,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         threads_to_run = []
         while thread_counter < len(thread_chunk):
             if debug & 16:
-                print("Running threads {}-{}...".format(thread_counter, thread_counter + thread_chunk_size), end='')
+                print("Running threads {}-{}...".format(thread_counter, thread_counter + thread_chunk_size), end='')  # noqa
 
             threads_to_run = thread_chunk[thread_counter:thread_counter + thread_chunk_size]
             thread_counter += thread_chunk_size
@@ -288,7 +270,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         message_num = 0
         messages_to_create = []
         for mid in chunk_mids:
-            message = transcript.messages[mid]
+            # message = transcript.messages[mid]
 
             if mid in mids_in_db:
                 mids_in_db.remove(mid)
@@ -346,10 +328,20 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
     import subprocess
     import time
     while start <= end:
-        run = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, 0, 24, debug={})" > /home/elendia/webapps/ppcg/PPCG/update_day.txt 2> /home/elendia/webapps/ppcg/PPCG/update_day_err.txt'.format(start.year, start.month, start.day, debug)
+        command = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, 0, 24, debug={})"'.format(start.year, start.month, start.day, debug)
         st = time.time()
-        print("Starting subprocess with command `{}`".format(run))
-        print(subprocess.run(run, shell=True))
+
+        print("Starting subprocess with command `{}`".format(command))
+
+        error_code = 1
+        runs = 1
+
+        while error_code:
+            runs += 1
+            error_code = subprocess.run(command, shell=True)
+            if error_code:
+                print("Starting subprocess again; iteration {}".format(runs))
+
         print("Elapsed time: {}".format(time.time() - st))
         print(start)
         start += datetime.timedelta(1)
