@@ -8,6 +8,7 @@ import http
 import time
 import hashlib
 import datetime
+import subprocess
 
 from transcriptAnalyzer.models import *
 
@@ -91,7 +92,7 @@ def retry_wrapper(func, name, mid, log=False):
     return wrapped_func
 
 
-def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0):
+def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False):
     url = "http://chat.stackexchange.com/transcript/{}/{}/{}/{}/{}-{}".format(room_num, year, month, day, hour_start, hour_end)
     date = datetime.date(year, month, day)
 
@@ -137,6 +138,15 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         # if snapshot and snapshot.sha1 != compare_sha1:
         #     print(date, snapshot.sha1, compare_sha1)
         #     return compare
+
+        if snapshot_only:
+            if create_snapshot:
+                snapshot = Snapshot(date=date)
+            snapshot.sha1 = compare_sha1
+            snapshot.save()
+
+            if debug & 4:
+                print("Snapshot created!")
 
     transcript = Parser(debug=debug & 1)
     transcript.feed(transcript_text)
@@ -306,8 +316,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         snapshot.sha1 = compare_sha1
         snapshot.save()
 
-    if debug & 4:
-        print("Snapshot created!")
+        if debug & 4:
+            print("Snapshot created!")
 
 
 def parse_days(start, end=datetime.datetime.now(), debug=0):
@@ -325,22 +335,48 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
 
 
 def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
-    import subprocess
-    import time
     while start <= end:
-        command = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, 0, 24, debug={})"'.format(start.year, start.month, start.day, debug)
+        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={})"'.format(start.year, start.month, start.day, debug)
+        command = ''
+        mode = 'day'
         st = time.time()
 
-        print("Starting subprocess with command `{}`".format(command))
+        print("Starting subprocess with command `{}`".format(template.format(0, 24)))
 
         return_code = 1
         runs = 1
+        max_day_fails = 5
+        max_hour_fails = 20
+        hour = 0
 
         while return_code:
             runs += 1
+
+            if runs - hour > max_hour_fails + max_day_fails:
+                with open('tnbde_fails.txt', 'a') as f:
+                    f.write('command "{}" failed'.format(command))
+
+            elif runs > max_day_fails:
+                mode = 'hour'
+                print("Transitioning to hour mode.")
+
+            if mode == 'day':
+                command = template.format(0, 24)
+            elif mode == 'hour':
+                command = template.format(hour, hour + 1)
+                print("  Parsing hour {}...".format(hour))
+
             return_code = subprocess.run(command, shell=True).returncode
-            if return_code:
+
+            if return_code and mode == 'day':
+                time.sleep(runs)
                 print("Starting subprocess again; iteration {}".format(runs))
+            elif not return_code and mode == 'hour':
+                if hour < 23:
+                    hour += 1
+                    return_code = 1  # reset for next loop
+                else:
+                    parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
 
         print("Elapsed time: {}".format(time.time() - st))
         print(start)
