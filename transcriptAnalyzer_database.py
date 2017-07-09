@@ -99,6 +99,7 @@ def read_url(url, max_tries=0):
         if response.status == 200:
             return response.read().decode('utf-8')
         elif response.status == 429:  # too many requests error
+            print("Got a 429 error; sleeping for {} seconds.".format(fails))
             time.sleep(fails)
         else:
             raise ValueError("Response status was not 200 or 429")
@@ -360,7 +361,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
         print("Starting subprocess with command `{}`".format(template.format(0, 24)))
 
         return_code = 1
-        runs = 1
+        runs = 0
         max_day_fails = 1
         max_hour_fails = 20
         hour = 0
