@@ -105,7 +105,7 @@ def read_url(url, max_tries=0):
         except HTTPError as e:
             if e.getcode() == 429:  # too many requests error
                 print("Got a 429 error; sleeping for {} seconds.".format(fails))
-                time.sleep(fails)
+                time.sleep(fails * 30)
             else:
                 raise ValueError("Response error status was not 429")
 
