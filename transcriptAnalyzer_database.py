@@ -1,4 +1,5 @@
 import urllib.request as ur
+from urllib.error import HTTPError
 import html.parser as hp
 from django.core.exceptions import ObjectDoesNotExist
 from threading import Thread
@@ -95,14 +96,18 @@ def retry_wrapper(func, name, mid, log=False):
 def read_url(url, max_tries=0):
     fails = 0
     while not max_tries or fails < max_tries:
-        response = ur.urlopen(url)
-        if response.status == 200:
-            return response.read().decode('utf-8')
-        elif response.status == 429:  # too many requests error
-            print("Got a 429 error; sleeping for {} seconds.".format(fails))
-            time.sleep(fails)
-        else:
-            raise ValueError("Response status was not 200 or 429")
+        try:
+            response = ur.urlopen(url)
+            if response.status == 200:
+                return response.read().decode('utf-8')
+            else:
+                raise ValueError("Response succeeded but was not a 200")
+        except HTTPError as e:
+            if e.getcode() == 429:  # too many requests error
+                print("Got a 429 error; sleeping for {} seconds.".format(fails))
+                time.sleep(fails)
+            else:
+                raise ValueError("Response error status was not 429")
 
         fails += 1
 
