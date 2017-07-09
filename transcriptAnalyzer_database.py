@@ -92,6 +92,20 @@ def retry_wrapper(func, name, mid, log=False):
     return wrapped_func
 
 
+def read_url(url, max_tries=0):
+    fails = 0
+    while not max_tries or fails < max_tries:
+        response = ur.urlopen(url)
+        if response.status == 200:
+            return response.read().decode('utf-8')
+        elif response.status == 429:  # too many requests error
+            time.sleep(fails)
+        else:
+            raise ValueError("Response status was not 200 or 429")
+
+        fails += 1
+
+
 def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False):
     url = "http://chat.stackexchange.com/transcript/{}/{}/{}/{}/{}-{}".format(room_num, year, month, day, hour_start, hour_end)
     date = datetime.date(year, month, day)
@@ -101,7 +115,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
     if debug & 4:
         print("Getting transcript text for {}...".format(date))
-    transcript_text = ur.urlopen(url).read().decode('utf-8')
+    transcript_text = read_url(url)
     if debug & 4:
         print("Transcript text fetched.")
 
@@ -148,6 +162,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             if debug & 4:
                 print("Snapshot created!")
 
+            return
+
     transcript = Parser(debug=debug & 1)
     transcript.feed(transcript_text)
 
@@ -186,9 +202,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if debug & 4:
         print("Username objects are done!")
 
-    hist = lambda n: lambda: histories.setdefault(n, ur.urlopen('https://chat.stackexchange.com/messages/{}/history'.format(n)).read().decode('utf-8'))
-    cont = lambda n: lambda: contents.setdefault(n, ur.urlopen('https://chat.stackexchange.com/message/{}'.format(n)).read().decode('utf-8'))
-    mark = lambda n: lambda: markdowns.setdefault(n, ur.urlopen('https://chat.stackexchange.com/messages/{}/{}'.format(room_num, n)).read().decode('utf-8'))
+    hist = lambda n: lambda: histories.setdefault(n, read_url('https://chat.stackexchange.com/messages/{}/history'.format(n)))
+    cont = lambda n: lambda: contents.setdefault(n, read_url('https://chat.stackexchange.com/message/{}'.format(n)))
+    mark = lambda n: lambda: markdowns.setdefault(n, read_url('https://chat.stackexchange.com/messages/{}/{}'.format(room_num, n)))
     threads = []
 
     for mid in transcript_mids:
@@ -345,7 +361,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
 
         return_code = 1
         runs = 1
-        max_day_fails = 5
+        max_day_fails = 1
         max_hour_fails = 20
         hour = 0
 
