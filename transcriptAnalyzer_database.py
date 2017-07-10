@@ -7,11 +7,14 @@ from threading import Thread
 import re
 import http
 import time
+import random
 import hashlib
 import datetime
 import subprocess
 
 from transcriptAnalyzer.models import *
+
+wait_lock = [0]
 
 
 class Parser(hp.HTMLParser):
@@ -95,7 +98,16 @@ def retry_wrapper(func, name, mid, log=False):
 
 def read_url(url, max_tries=0):
     fails = 0
+    me = random.randint(1, 10**8)
+
     while not max_tries or fails < max_tries:
+        if wait_lock[0]:
+            if wait_lock[0] == me:
+                wait_lock[0] = 0
+            else:
+                time.sleep(fails * 30)
+                continue
+
         try:
             response = ur.urlopen(url)
             if response.status == 200:
@@ -104,7 +116,9 @@ def read_url(url, max_tries=0):
                 raise ValueError("Response succeeded but was not a 200")
         except HTTPError as e:
             if e.getcode() == 429:  # too many requests error
-                print("Got a 429 error; sleeping for {} seconds.".format(fails * 30))
+                if not wait_lock[0]:
+                    wait_lock[0] = me
+                    print("Got a 429 error; sleeping for {} seconds.".format(fails * 30))
                 time.sleep(fails * 30)
             else:
                 raise ValueError("Response error status was not 429")
@@ -377,6 +391,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
             if runs - hour > max_hour_fails + max_day_fails:
                 with open('tnbde_fails.txt', 'a') as f:
                     f.write('command "{}" failed'.format(command))
+                    return
 
             elif runs > max_day_fails:
                 mode = 'hour'
