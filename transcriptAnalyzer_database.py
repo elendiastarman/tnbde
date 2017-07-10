@@ -1,5 +1,6 @@
 import urllib.request as ur
 from urllib.error import HTTPError
+from psycopg2 import DatabaseError
 import html.parser as hp
 from django.core.exceptions import ObjectDoesNotExist
 from threading import Thread
@@ -419,7 +420,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                             parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
                             break
                         except DatabaseError:
-                            pass
+                            time.sleep(10 + i * 10)
                     else:
                         raise ValueError("Unable to create snapshot.")
 
