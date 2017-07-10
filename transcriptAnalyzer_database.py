@@ -413,7 +413,15 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                     hour += 1
                     return_code = 1  # reset for next loop
                 else:
-                    parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
+                    tries = 5
+                    for i in range(tries):
+                        try:
+                            parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
+                            break
+                        except DatabaseError:
+                            pass
+                    else:
+                        raise ValueError("Unable to create snapshot.")
 
         print("Elapsed time: {}".format(time.time() - st))
         print(start)
