@@ -1,6 +1,6 @@
 import urllib.request as ur
 from urllib.error import HTTPError
-from psycopg2 import DatabaseError
+from psycopg2 import DatabaseError, OperationalError
 import html.parser as hp
 from django.core.exceptions import ObjectDoesNotExist
 from threading import Thread
@@ -184,7 +184,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                     snapshot.sha1 = compare_sha1
                     snapshot.save()
                     break
-                except DatabaseError:
+                except (DatabaseError, OperationalError):
                     time.sleep(tries * 15)
             else:
                 raise ValueError("Unable to create snapshot")
@@ -366,7 +366,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                 snapshot.sha1 = compare_sha1
                 snapshot.save()
                 break
-            except DatabaseError:
+            except (DatabaseError, OperationalError):
                 time.sleep(tries * 15)
         else:
             raise ValueError("Unable to create snapshot")
