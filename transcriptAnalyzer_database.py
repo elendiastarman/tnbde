@@ -176,12 +176,14 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
         if snapshot_only:
             snapshot_tries = 5
+            if create_snapshot:
+                snapshot = Snapshot(date=date)
+
             for tries in range(snapshot_tries):
                 try:
-                    if create_snapshot:
-                        snapshot = Snapshot(date=date)
                     snapshot.sha1 = compare_sha1
                     snapshot.save()
+                    break
                 except DatabaseError:
                     time.sleep(tries * 15)
             else:
@@ -356,12 +358,14 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if create_snapshot or snapshot:
         # create or update snapshot
         snapshot_tries = 5
+        if create_snapshot:
+            snapshot = Snapshot(date=date)
+
         for tries in range(snapshot_tries):
             try:
-                if create_snapshot:
-                    snapshot = Snapshot(date=date)
                 snapshot.sha1 = compare_sha1
                 snapshot.save()
+                break
             except DatabaseError:
                 time.sleep(tries * 15)
         else:
