@@ -9,6 +9,8 @@ from django.db.utils import InterfaceError as d_InterfaceError
 import html.parser as hp
 from django.core.exceptions import ObjectDoesNotExist
 from threading import Thread
+from stem import Signal
+from stem.control import Controller
 
 import re
 import http
@@ -16,11 +18,14 @@ import time
 import random
 import hashlib
 import datetime
+import requests
 import subprocess
 
 from transcriptAnalyzer.models import *
 
 wait_lock = [0]
+session = requests.session()
+session.proxies = {'http': 'socks5://127.0.0.1:9050', 'https': 'socks5://127.0.0.1:9050'}
 
 
 class Parser(hp.HTMLParser):
@@ -83,6 +88,13 @@ class Parser(hp.HTMLParser):
             self.curr_mess['stars'] = int(data) if data else 1
 
 
+# signal TOR for a new connection
+def renew_connection():
+    with Controller.from_port(port=9051) as controller:
+        controller.authenticate(password="password")
+        controller.signal(Signal.NEWNYM)
+
+
 def retry_wrapper(func, name, mid, log=False):
     def wrapped_func():
         max_tries = 5
@@ -116,20 +128,16 @@ def read_url(url, max_tries=0):
                 time.sleep(fails * 30)
                 continue
 
-        try:
-            response = ur.urlopen(url)
-            if response.status == 200:
-                return response.read().decode('utf-8')
-            else:
-                raise ValueError("Response succeeded but was not a 200")
-        except HTTPError as e:
-            if e.getcode() == 429:  # too many requests error
-                if not wait_lock[0]:
-                    wait_lock[0] = me
-                    print("Got a 429 error; sleeping for {} seconds.".format(fails * 30))
-                time.sleep(fails * 30)
-            else:
-                raise ValueError("Response error status was not 429")
+        response = session.get(url)
+        if response.status_code == 200:
+            return response.text
+        elif response.status_code == 429:  # too many requests error
+            if not wait_lock[0]:
+                wait_lock[0] = me
+                print("Got a 429 error; sleeping for {} seconds.".format(fails * 30))
+            time.sleep(fails * 30)
+        else:
+            raise ValueError("Response status was not 200 or 429")
 
         fails += 1
 
@@ -265,6 +273,10 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     db_chunk_size = 100
 
     while db_counter * 3 < len(threads):
+        renew_connection()
+        if debug & 8:
+            print("New IP: {}".format(session.get('http://httpbin.org/ip').text))
+
         if debug & 8:
             print("Running DB chunk {}-{} (out of {})".format(db_counter, db_counter + db_chunk_size, len(threads) // 3))
 
@@ -406,7 +418,8 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
 
 def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
     while start <= end:
-        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={})"'.format(start.year, start.month, start.day, debug)
+        # template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={})"'.format(start.year, start.month, start.day, debug)
+        template = 'python manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={})"'.format(start.year, start.month, start.day, debug)
         command = ''
         mode = 'day'
         st = time.time()
