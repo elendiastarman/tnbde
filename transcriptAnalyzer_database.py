@@ -25,7 +25,7 @@ from transcriptAnalyzer.models import *
 
 wait_lock = [0]
 session = [requests.session()]
-session[0].proxies = {'http': 'socks5://127.0.0.1:9050', 'https': 'socks5://127.0.0.1:9050'}
+session_proxies = {'http': 'socks5://127.0.0.1:9050', 'https': 'socks5://127.0.0.1:9050'}
 
 
 class Parser(hp.HTMLParser):
@@ -91,6 +91,7 @@ class Parser(hp.HTMLParser):
 # signal TOR for a new connection
 def renew_connection():
     session[0] = requests.session()
+    session[0].proxies = session_proxies
     with Controller.from_port(port=9051) as controller:
         controller.authenticate(password="password")
         controller.signal(Signal.NEWNYM)
@@ -110,6 +111,10 @@ def retry_wrapper(func, name, mid, log=False):
             except http.client.RemoteDisconnected:
                 if log:
                     print("RemoteDisconnected for {}({}); sleeping for 1 second".format(name, mid))
+                time.sleep(1)
+            except requests.exceptions.ConnectionError:
+                if log:
+                    print("Max retries exceeded for {}({})".format(name, mid))
                 time.sleep(1)
         else:
             raise ValueError("Unable to execute function.")
