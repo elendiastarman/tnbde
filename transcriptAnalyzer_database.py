@@ -24,8 +24,8 @@ import subprocess
 from transcriptAnalyzer.models import *
 
 wait_lock = [0]
-session = requests.session()
-session.proxies = {'http': 'socks5://127.0.0.1:9050', 'https': 'socks5://127.0.0.1:9050'}
+session = [requests.session()]
+session[0].proxies = {'http': 'socks5://127.0.0.1:9050', 'https': 'socks5://127.0.0.1:9050'}
 
 
 class Parser(hp.HTMLParser):
@@ -90,6 +90,7 @@ class Parser(hp.HTMLParser):
 
 # signal TOR for a new connection
 def renew_connection():
+    session[0] = requests.session()
     with Controller.from_port(port=9051) as controller:
         controller.authenticate(password="password")
         controller.signal(Signal.NEWNYM)
@@ -128,7 +129,7 @@ def read_url(url, max_tries=0):
                 time.sleep(fails * 30)
                 continue
 
-        response = session.get(url)
+        response = session[0].get(url)
         if response.status_code == 200:
             return response.text
         elif response.status_code == 429:  # too many requests error
@@ -275,7 +276,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     while db_counter * 3 < len(threads):
         renew_connection()
         if debug & 8:
-            print("New IP: {}".format(session.get('http://httpbin.org/ip').text))
+            print("New IP: {}".format(session[0].get('http://httpbin.org/ip').text))
 
         if debug & 8:
             print("Running DB chunk {}-{} (out of {})".format(db_counter, db_counter + db_chunk_size, len(threads) // 3))
