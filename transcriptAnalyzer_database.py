@@ -1,6 +1,9 @@
 import urllib.request as ur
 from urllib.error import HTTPError
-from psycopg2 import DatabaseError, OperationalError
+from psycopg2 import DatabaseError as p_DatabaseError
+from psycopg2 import OperationalError as p_OperationalError
+from django.db.utils import DatabaseError as d_DatabaseError
+from django.db.utils import OperationalError as d_OperationalError
 import html.parser as hp
 from django.core.exceptions import ObjectDoesNotExist
 from threading import Thread
@@ -127,6 +130,20 @@ def read_url(url, max_tries=0):
         fails += 1
 
 
+def resave_wrapper(func, log=False):
+    max_tries = 5
+    for i in range(max_tries):
+        try:
+            func()
+            break
+        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError):
+            if log:
+                print("Database error occurred")
+            time.sleep(i * 15)
+    else:
+        raise ValueError("Could not exeute database operation")
+
+
 def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False):
     url = "http://chat.stackexchange.com/transcript/{}/{}/{}/{}/{}-{}".format(room_num, year, month, day, hour_start, hour_end)
     date = datetime.date(year, month, day)
@@ -175,19 +192,11 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         #     return compare
 
         if snapshot_only:
-            snapshot_tries = 5
             if create_snapshot:
                 snapshot = Snapshot(date=date)
 
-            for tries in range(snapshot_tries):
-                try:
-                    snapshot.sha1 = compare_sha1
-                    snapshot.save()
-                    break
-                except (DatabaseError, OperationalError):
-                    time.sleep(tries * 15)
-            else:
-                raise ValueError("Unable to create snapshot")
+            snapshot.sha1 = compare_sha1
+            resave_wrapper(lambda: snapshot.save())
 
             if debug & 4:
                 print("Snapshot created!")
@@ -208,7 +217,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     uids_in_db = set(u.uid for u in users_in_db)
 
     for new_uid in transcript_uids - uids_in_db:
-        User(uid=new_uid, latest_msg=0, latest_name='').save()
+        resave_wrapper(lambda: User(uid=new_uid, latest_msg=0, latest_name='').save())
 
     users_in_db = User.objects.filter(uid__in=transcript_uids)
 
@@ -220,14 +229,14 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         user = users_in_db.get(uid=msg['uid'])
 
         if not Username.objects.filter(user=user.id, name=msg['name']).exists():
-            Username(user=user, name=msg['name']).save()
+            resave_wrapper(lambda: Username(user=user, name=msg['name']).save())
             user.latest_name = msg['name']
             user.latest_msg = mid
-            user.save()
+            resave_wrapper(lambda: user.save())
         elif mid > user.latest_msg:
             user.latest_name = msg['name']
             user.latest_msg = mid
-            user.save()
+            resave_wrapper(lambda: user.save())
 
     if debug & 4:
         print("Username objects are done!")
@@ -238,9 +247,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     threads = []
 
     for mid in transcript_mids:
-        threads += [Thread(target=retry_wrapper(hist(mid), 'history', mid, log & 1)),
-                    Thread(target=retry_wrapper(cont(mid), 'content', mid, log & 1)),
-                    Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 1))]
+        threads += [Thread(target=retry_wrapper(hist(mid), 'history', mid, log & 32)),
+                    Thread(target=retry_wrapper(cont(mid), 'content', mid, log & 32)),
+                    Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 32))]
 
     if debug & 4:
         print("Starting the threads... ({} of them)".format(len(threads)))
@@ -339,15 +348,15 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             if mid not in mids_in_db:
                 messages_to_create.append(Message(**transcript_msgs[mid]))
             else:
-                msgs_in_db.filter(mid=mid).update(**transcript_msgs[mid])
+                resave_wrapper(lambda: msgs_in_db.filter(mid=mid).update(**transcript_msgs[mid]))
 
         if debug & 8:
             print("Message stuff done!")
 
         # these were not in the transcript so should be deleted from the database
-        Message.objects.filter(mid__in=mids_in_db).delete()
+        resave_wrapper(lambda: Message.objects.filter(mid__in=mids_in_db).delete())
 
-        Message.objects.bulk_create(messages_to_create)
+        resave_wrapper(lambda: Message.objects.bulk_create(messages_to_create))
 
         if debug & 8:
             print("Message table updated!")
@@ -357,19 +366,11 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
     if create_snapshot or snapshot:
         # create or update snapshot
-        snapshot_tries = 5
         if create_snapshot:
             snapshot = Snapshot(date=date)
 
-        for tries in range(snapshot_tries):
-            try:
-                snapshot.sha1 = compare_sha1
-                snapshot.save()
-                break
-            except (DatabaseError, OperationalError):
-                time.sleep(tries * 15)
-        else:
-            raise ValueError("Unable to create snapshot")
+        snapshot.sha1 = compare_sha1
+        resave_wrapper(lambda: snapshot.save())
 
         if debug & 4:
             print("Snapshot created!")
@@ -400,7 +401,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
 
         return_code = 1
         runs = 0
-        max_day_fails = 1
+        max_day_fails = 3
         max_hour_fails = 20
         hour = 0
 
@@ -413,8 +414,12 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                     return
 
             elif runs > max_day_fails:
-                mode = 'hour'
-                print("Transitioning to hour mode.")
+                try:
+                    Snapshot.objects.get(date=start)
+                    break
+                except ObjectDoesNotExist:
+                    mode = 'hour'
+                    print("Transitioning to hour mode.")
 
             if mode == 'day':
                 command = template.format(0, 24)
@@ -437,7 +442,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                         try:
                             parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
                             break
-                        except DatabaseError:
+                        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError):
                             time.sleep(10 + i * 10)
                     else:
                         raise ValueError("Unable to create snapshot.")
