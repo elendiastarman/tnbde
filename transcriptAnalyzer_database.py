@@ -117,6 +117,10 @@ def retry_wrapper(func, name, mid, log=False):
                 time.sleep(1)
             except requests.exceptions.ConnectionError:
                 if log:
+                    print("Max retries exceeded for {}({}); sleeping for 1 second".format(name, mid))
+                time.sleep(1)
+            except requests.exceptions.ConnectionError:
+                if log:
                     print("Max retries exceeded for {}({})".format(name, mid))
                 time.sleep(1)
         else:
