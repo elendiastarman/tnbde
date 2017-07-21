@@ -97,6 +97,9 @@ def renew_connection():
         controller.signal(Signal.NEWNYM)
 
 
+renew_connection()
+
+
 def retry_wrapper(func, name, mid, log=False):
     def wrapped_func():
         max_tries = 5
