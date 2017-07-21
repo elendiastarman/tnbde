@@ -90,11 +90,11 @@ def retry_wrapper(func, name, mid, log=False):
                 success = True
             except ur.URLError:
                 if log:
-                    print("URLError for {}({})".format(name, mid))
+                    print("URLError for {}({}); sleeping for 1 second".format(name, mid))
                 time.sleep(1)
             except http.client.RemoteDisconnected:
                 if log:
-                    print("RemoteDisconnected for {}({})".format(name, mid))
+                    print("RemoteDisconnected for {}({}); sleeping for 1 second".format(name, mid))
                 time.sleep(1)
 
     return wrapped_func
@@ -130,15 +130,15 @@ def read_url(url, max_tries=0):
         fails += 1
 
 
-def resave_wrapper(func, log=False):
+def redo_wrapper(func, log=False):
     max_tries = 5
     for i in range(max_tries):
         try:
-            func()
+            return func()
             break
         except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError):
             if log:
-                print("Database error occurred")
+                print("Database error occurred; sleeping for {} seconds".format(i * 15))
             time.sleep(i * 15)
     else:
         raise ValueError("Could not exeute database operation")
@@ -167,7 +167,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     snapshot = None
     if hour_start == 0 and hour_end == 24:  # get the snapshot
         try:
-            snapshot = Snapshot.objects.get(date=date)
+            snapshot = redo_wrapper(lambda: Snapshot.objects.get(date=date), log=debug & 64)
         except ObjectDoesNotExist:
             create_snapshot = True
 
@@ -196,7 +196,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                 snapshot = Snapshot(date=date)
 
             snapshot.sha1 = compare_sha1
-            resave_wrapper(lambda: snapshot.save())
+            redo_wrapper(lambda: snapshot.save(), log=debug & 64)
 
             if debug & 4:
                 print("Snapshot created!")
@@ -213,30 +213,30 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
     # users
     transcript_uids = set(m['uid'] for m in transcript.messages.values())
-    users_in_db = User.objects.filter(uid__in=transcript_uids)
+    users_in_db = redo_wrapper(lambda: User.objects.filter(uid__in=transcript_uids), log=debug & 64)
     uids_in_db = set(u.uid for u in users_in_db)
 
     for new_uid in transcript_uids - uids_in_db:
-        resave_wrapper(lambda: User(uid=new_uid, latest_msg=0, latest_name='').save())
+        redo_wrapper(lambda: User(uid=new_uid, latest_msg=0, latest_name='').save(), log=debug & 64)
 
-    users_in_db = User.objects.filter(uid__in=transcript_uids)
+    users_in_db = redo_wrapper(lambda: User.objects.filter(uid__in=transcript_uids), log=debug & 64)
 
     if debug & 4:
         print("User objects are done!")
 
     # usernames
     for mid, msg in transcript.messages.items():
-        user = users_in_db.get(uid=msg['uid'])
+        user = redo_wrapper(lambda: users_in_db.get(uid=msg['uid']), log=debug & 64)
 
-        if not Username.objects.filter(user=user.id, name=msg['name']).exists():
-            resave_wrapper(lambda: Username(user=user, name=msg['name']).save())
+        if not redo_wrapper(lambda: Username.objects.filter(user=user.id, name=msg['name']).exists(), log=debug & 64):
+            redo_wrapper(lambda: Username(user=user, name=msg['name']).save(), log=debug & 64)
             user.latest_name = msg['name']
             user.latest_msg = mid
-            resave_wrapper(lambda: user.save())
+            redo_wrapper(lambda: user.save(), log=debug & 64)
         elif mid > user.latest_msg:
             user.latest_name = msg['name']
             user.latest_msg = mid
-            resave_wrapper(lambda: user.save())
+            redo_wrapper(lambda: user.save(), log=debug & 64)
 
     if debug & 4:
         print("Username objects are done!")
@@ -302,7 +302,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
             # miscellaneous
             msg['mid'] = mid
-            msg['user'] = users_in_db.get(uid=msg['uid'])
+            msg['user'] = redo_wrapper(lambda: users_in_db.get(uid=msg['uid']), log=debug & 64)
             msg['date'] = date
             msg['room'] = room_num
 
@@ -336,7 +336,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                     print("Bad message! mid: {}".format(msg['mid']))
                     print(msg)
 
-        msgs_in_db = Message.objects.filter(mid__gte=chunk_mids[0], mid__lte=chunk_mids[-1])
+        msgs_in_db = redo_wrapper(lambda: Message.objects.filter(mid__gte=chunk_mids[0], mid__lte=chunk_mids[-1]), log=debug & 64)
         mids_in_db = [m.mid for m in msgs_in_db]
 
         message_num = 0
@@ -355,15 +355,15 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             if mid not in mids_in_db:
                 messages_to_create.append(Message(**transcript_msgs[mid]))
             else:
-                resave_wrapper(lambda: msgs_in_db.filter(mid=mid).update(**transcript_msgs[mid]))
+                redo_wrapper(lambda: msgs_in_db.filter(mid=mid).update(**transcript_msgs[mid]), log=debug & 64)
 
         if debug & 8:
             print("Message stuff done!")
 
         # these were not in the transcript so should be deleted from the database
-        resave_wrapper(lambda: Message.objects.filter(mid__in=mids_in_db).delete())
+        redo_wrapper(lambda: Message.objects.filter(mid__in=mids_in_db).delete(), log=debug & 64)
 
-        resave_wrapper(lambda: Message.objects.bulk_create(messages_to_create))
+        redo_wrapper(lambda: Message.objects.bulk_create(messages_to_create), log=debug & 64)
 
         if debug & 8:
             print("Message table updated!")
@@ -377,7 +377,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             snapshot = Snapshot(date=date)
 
         snapshot.sha1 = compare_sha1
-        resave_wrapper(lambda: snapshot.save())
+        redo_wrapper(lambda: snapshot.save(), log=debug & 64)
 
         if debug & 4:
             print("Snapshot created!")
@@ -422,7 +422,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
 
             elif runs > max_day_fails:
                 try:
-                    Snapshot.objects.get(date=start)
+                    redo_wrapper(lambda: Snapshot.objects.get(date=start), log=debug & 64)
                     break
                 except ObjectDoesNotExist:
                     mode = 'hour'
@@ -450,6 +450,8 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                             parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
                             break
                         except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError):
+                            if debug & 64:
+                                print("Failed to create snapshot due to database error; sleeping for {} seconds".format(10 + i * 10))
                             time.sleep(10 + i * 10)
                     else:
                         raise ValueError("Unable to create snapshot.")
