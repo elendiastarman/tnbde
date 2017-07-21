@@ -330,8 +330,8 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             transcript_msgs[mid] = msg
 
             if chr(0) in msg['content'] or chr(0) in msg['markdown']:
-                msg['content'].replace(chr(0), '')
-                msg['markdown'].replace(chr(0), '')
+                msg['content'] = msg['content'].replace(chr(0), '').replace('\x00', '')
+                msg['markdown'] = msg['markdown'].replace(chr(0), '').replace('\x00', '')
                 if debug & 16:
                     print("Bad message! mid: {}".format(msg['mid']))
                     print(msg)
