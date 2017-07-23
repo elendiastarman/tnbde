@@ -71,34 +71,41 @@ def migrate_queries():
 
   for filename in os.listdir(os.path.join(os.getcwd(), 'transcriptAnalyzer', 'queries')):
     print(filename)
-    break
 
     shortcode = filename[:10]
     if shortcode not in seen_codes:
-      with open("{}JS.txt".format(shortcode)) as js_file:
-        js = js_file.read()
-        js_sha1 = hashlib.sha1(bytes(js, encoding='utf-8')).hexdigest()
+      try:
+        with open("{}JS.txt".format(shortcode)) as js_file:
+          js = js_file.read()
+      except FileNotFoundError:
+        js = ''
+
+      js_sha1 = hashlib.sha1(bytes(js, encoding='utf-8')).hexdigest()
+
+      try:
+        inquiry = Inquiry.objects.get(sha1=js_sha1)
+
+        if inquiry.shortcode != shortcode and shortcode in priority_shortcodes:
+          inquiry.shortcode = shortcode
+          inquiry.save()
+          continue
+
+      except ObjectDoesNotExist:
+        inquiry = Inquiry(js=js, sha1=js_sha1)
 
         try:
-          inquiry = Inquiry.objects.get(sha1=js_sha1)
-
-          if inquiry.shortcode != shortcode and shortcode in priority_shortcodes:
-            inquiry.shortcode = shortcode
-            inquiry.save()
-            continue
-
-        except ObjectDoesNotExist:
-          inquiry = Inquiry(js=js, sha1=js_sha1)
-
           with open("{}In.txt".format(shortcode)) as sql_file:
             sql = sql_file.read()
-            sql_sha1 = hashlib.sha1(bytes(sql, encoding='utf-8')).hexdigest()
+        except FileNotFoundError:
+          sql = ''
 
-            try:
-              query = Query.objects.get(sha1=sql_sha1)
-            except ObjectDoesNotExist:
-              query = Query(sql=sql, sha1=sql_sha1)
-              query.save()
+        sql_sha1 = hashlib.sha1(bytes(sql, encoding='utf-8')).hexdigest()
 
-          inquiry.query = query
-          inquiry.save()
+        try:
+          query = Query.objects.get(sha1=sql_sha1)
+        except ObjectDoesNotExist:
+          query = Query(sql=sql, sha1=sql_sha1)
+          query.save()
+
+        inquiry.query = query
+        inquiry.save()
