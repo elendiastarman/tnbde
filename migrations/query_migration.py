@@ -64,12 +64,12 @@ priority_shortcodes = [
 ]
 
 
-def migrate_query():
+def migrate_queries():
   seen_codes = [inquiry.shortcode for inquiry in Inquiry.objects.all()]
 
   print(os.getcwd())
 
-  for filename in os.listdir(os.path.join(os.getcwd(), 'queries')):
+  for filename in os.listdir(os.path.join(os.getcwd(), 'transcriptAnalyzer', 'queries')):
     print(filename)
     break
 
