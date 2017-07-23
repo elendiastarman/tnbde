@@ -211,6 +211,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
 
     transcript_mids = sorted(list(transcript.messages.keys()))
 
+    # Clear out cached responses to queries
+    redo_wrapper(lambda: Query.objects.exclude(response='').update(response=''))
+
     # users
     transcript_uids = set(m['uid'] for m in transcript.messages.values())
     users_in_db = redo_wrapper(lambda: User.objects.filter(uid__in=transcript_uids), log=debug & 64)
