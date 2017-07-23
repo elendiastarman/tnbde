@@ -66,16 +66,32 @@ priority_shortcodes = [
 
 def migrate_queries():
   seen_codes = [inquiry.shortcode for inquiry in Inquiry.objects.all()]
+  root = os.path.join(os.getcwd(), 'transcriptAnalyzer', 'queries')
+  print("root: {}".format(root))
 
-  print(os.getcwd())
-
-  for filename in os.listdir(os.path.join(os.getcwd(), 'transcriptAnalyzer', 'queries')):
+  for filename in os.listdir(root):
     print(filename)
 
     shortcode = filename[:10]
     if shortcode not in seen_codes:
+      # Try to get Query object first
       try:
-        with open("{}JS.txt".format(shortcode)) as js_file:
+        with open("{}/{}In.txt".format(root, shortcode)) as sql_file:
+          sql = sql_file.read()
+      except FileNotFoundError:
+        sql = ''
+
+      sql_sha1 = hashlib.sha1(bytes(sql, encoding='utf-8')).hexdigest()
+
+      try:
+        query = Query.objects.get(sha1=sql_sha1)
+      except ObjectDoesNotExist:
+        query = Query(sql=sql, sha1=sql_sha1)
+        query.save()
+
+      # Then try to get Inquiry object
+      try:
+        with open("{}/{}JS.txt".format(root, shortcode)) as js_file:
           js = js_file.read()
       except FileNotFoundError:
         js = ''
@@ -83,7 +99,7 @@ def migrate_queries():
       js_sha1 = hashlib.sha1(bytes(js, encoding='utf-8')).hexdigest()
 
       try:
-        inquiry = Inquiry.objects.get(sha1=js_sha1)
+        inquiry = Inquiry.objects.get(sha1=js_sha1, query=query.id)
 
         if inquiry.shortcode != shortcode and shortcode in priority_shortcodes:
           inquiry.shortcode = shortcode
@@ -91,21 +107,5 @@ def migrate_queries():
           continue
 
       except ObjectDoesNotExist:
-        inquiry = Inquiry(js=js, sha1=js_sha1)
-
-        try:
-          with open("{}In.txt".format(shortcode)) as sql_file:
-            sql = sql_file.read()
-        except FileNotFoundError:
-          sql = ''
-
-        sql_sha1 = hashlib.sha1(bytes(sql, encoding='utf-8')).hexdigest()
-
-        try:
-          query = Query.objects.get(sha1=sql_sha1)
-        except ObjectDoesNotExist:
-          query = Query(sql=sql, sha1=sql_sha1)
-          query.save()
-
-        inquiry.query = query
+        inquiry = Inquiry(js=js, sha1=js_sha1, query=query)
         inquiry.save()
