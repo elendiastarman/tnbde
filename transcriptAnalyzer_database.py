@@ -217,7 +217,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     # users
     transcript_uids = set(m['uid'] for m in transcript.messages.values())
     users_in_db = redo_wrapper(lambda: User.objects.filter(uid__in=transcript_uids), log=debug & 64)
-    uids_in_db = set(u.uid for u in users_in_db)
+    uids_in_db = redo_wrapper(lambda: set(u.uid for u in users_in_db))
 
     for new_uid in transcript_uids - uids_in_db:
         redo_wrapper(lambda: User(uid=new_uid, latest_msg=0, latest_name='').save(), log=debug & 64)
@@ -340,7 +340,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
                     print(msg)
 
         msgs_in_db = redo_wrapper(lambda: Message.objects.filter(mid__gte=chunk_mids[0], mid__lte=chunk_mids[-1]), log=debug & 64)
-        mids_in_db = [m.mid for m in msgs_in_db]
+        mids_in_db = redo_wrapper(lambda: [m.mid for m in msgs_in_db])
 
         message_num = 0
         messages_to_create = []
