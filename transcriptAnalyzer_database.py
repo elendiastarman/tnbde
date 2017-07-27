@@ -2,8 +2,10 @@ import urllib.request as ur
 from urllib.error import HTTPError
 from psycopg2 import DatabaseError as p_DatabaseError
 from psycopg2 import OperationalError as p_OperationalError
+from psycopg2 import InterfaceError as p_InterfaceError
 from django.db.utils import DatabaseError as d_DatabaseError
 from django.db.utils import OperationalError as d_OperationalError
+from django.db.utils import InterfaceError as d_InterfaceError
 import html.parser as hp
 from django.core.exceptions import ObjectDoesNotExist
 from threading import Thread
@@ -83,11 +85,11 @@ class Parser(hp.HTMLParser):
 
 def retry_wrapper(func, name, mid, log=False):
     def wrapped_func():
-        success = False
-        while not success:
+        max_tries = 5
+        for trie in range(max_tries):
             try:
                 func()
-                success = True
+                return
             except ur.URLError:
                 if log:
                     print("URLError for {}({}); sleeping for 1 second".format(name, mid))
@@ -96,6 +98,8 @@ def retry_wrapper(func, name, mid, log=False):
                 if log:
                     print("RemoteDisconnected for {}({}); sleeping for 1 second".format(name, mid))
                 time.sleep(1)
+        else:
+            raise ValueError("Unable to execute function.")
 
     return wrapped_func
 
@@ -136,7 +140,7 @@ def redo_wrapper(func, log=False):
         try:
             return func()
             break
-        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError):
+        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError, p_InterfaceError, d_InterfaceError):
             if log:
                 print("Database error occurred; sleeping for {} seconds".format(i * 15))
             time.sleep(i * 15)
@@ -250,9 +254,9 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     threads = []
 
     for mid in transcript_mids:
-        threads += [Thread(target=retry_wrapper(hist(mid), 'history', mid, log & 32)),
-                    Thread(target=retry_wrapper(cont(mid), 'content', mid, log & 32)),
-                    Thread(target=retry_wrapper(mark(mid), 'markdown', mid, log & 32))]
+        threads += [Thread(target=retry_wrapper(hist(mid), 'history', mid, debug & 32)),
+                    Thread(target=retry_wrapper(cont(mid), 'content', mid, debug & 32)),
+                    Thread(target=retry_wrapper(mark(mid), 'markdown', mid, debug & 32))]
 
     if debug & 4:
         print("Starting the threads... ({} of them)".format(len(threads)))
@@ -452,7 +456,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                         try:
                             parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
                             break
-                        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError):
+                        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError, p_InterfaceError, d_InterfaceError):
                             if debug & 64:
                                 print("Failed to create snapshot due to database error; sleeping for {} seconds".format(10 + i * 10))
                             time.sleep(10 + i * 10)
