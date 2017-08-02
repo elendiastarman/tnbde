@@ -213,7 +213,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             return
 
     if verify_message_count:
-        if len(re.findall('<div class="message"', transcript_text)) == Message.objects.count(date=date):
+        if len(re.findall('<div class="message"', transcript_text)) == Message.objects.filter(date=date).count():
             return
 
     transcript = Parser(debug=debug & 1)
