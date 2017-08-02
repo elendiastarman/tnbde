@@ -148,7 +148,7 @@ def redo_wrapper(func, log=False):
         raise ValueError("Could not exeute database operation")
 
 
-def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False):
+def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False, ignore_snapshot=False):
     url = "http://chat.stackexchange.com/transcript/{}/{}/{}/{}/{}-{}".format(room_num, year, month, day, hour_start, hour_end)
     date = datetime.date(year, month, day)
 
@@ -175,7 +175,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         except ObjectDoesNotExist:
             create_snapshot = True
 
-    if create_snapshot or snapshot:
+    if not ignore_snapshot and (create_snapshot or snapshot):
         # Conveniently, any angle brackets arising from user input are encoded as &lt; and &gt;, so we know these regex patterns will match actual HTML
         compare = re.split('<div id="transcript"', transcript_text, maxsplit=1)[1]  # remove pre-transcript text
         compare = re.split('<a href="/transcript', compare, maxsplit=1)[0]  # remove post-transcript text
@@ -385,7 +385,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
     if debug & 4:
         print("All messages done!")
 
-    if create_snapshot or snapshot:
+    if not ignore_snapshot and (create_snapshot or snapshot):
         # create or update snapshot
         if create_snapshot:
             snapshot = Snapshot(date=date)
@@ -411,9 +411,9 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
         start += datetime.timedelta(1 / 24)
 
 
-def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0, snapshots_only=False):
+def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0, snapshots_only=False, ignore_snapshots=False):
     while start <= end:
-        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={}, snapshot_only={})"'.format(start.year, start.month, start.day, debug, snapshots_only)
+        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={}, snapshot_only={}, ignore_snapshot={})"'.format(start.year, start.month, start.day, debug, snapshots_only, ignore_snapshots)
         command = ''
         mode = 'day'
         st = time.time()
