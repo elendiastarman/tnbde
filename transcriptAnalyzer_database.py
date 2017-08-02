@@ -140,9 +140,9 @@ def redo_wrapper(func, log=False):
         try:
             return func()
             break
-        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError, p_InterfaceError, d_InterfaceError):
+        except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError, p_InterfaceError, d_InterfaceError) as e:
             if log:
-                print("Database error occurred; sleeping for {} seconds".format(i * 15))
+                print("Database error occurred: {}; sleeping for {} seconds".format(e, i * 15))
             time.sleep(i * 15)
     else:
         raise ValueError("Could not exeute database operation")
@@ -179,7 +179,12 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         # Conveniently, any angle brackets arising from user input are encoded as &lt; and &gt;, so we know these regex patterns will match actual HTML
         compare = re.split('<div id="transcript"', transcript_text, maxsplit=1)[1]  # remove pre-transcript text
         compare = re.split('<a href="/transcript', compare, maxsplit=1)[0]  # remove post-transcript text
-        compare = re.sub('<div class="signature".*?<div class="messages"', '', compare, flags=re.DOTALL)  # remove signatures, which includes avatars
+        compare = re.sub('<div class="signature".*?(?=<div class="messages")', '', compare, flags=re.DOTALL)  # remove signatures, which includes avatars
+        compare = re.sub('<div class="room-mini".*?(?=<span class="flash")', '', compare, flags=re.DOTALL)  # remove chat room mini displays
+
+        if debug & 128:
+            print("Stripped transcript:")
+            print(compare)
 
         compare_sha1 = hashlib.sha1(bytes(compare, encoding='utf-8')).hexdigest()
         # if snapshot:
@@ -337,11 +342,15 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             transcript_msgs[mid] = msg
 
             if chr(0) in msg['content'] or chr(0) in msg['markdown']:
-                msg['content'] = msg['content'].replace(chr(0), '').replace('\x00', '')
-                msg['markdown'] = msg['markdown'].replace(chr(0), '').replace('\x00', '')
                 if debug & 16:
                     print("Bad message! mid: {}".format(msg['mid']))
                     print(msg)
+
+                msg['content'] = msg['content'].replace(chr(0), '').replace('\x00', '')
+                msg['markdown'] = msg['markdown'].replace(chr(0), '').replace('\x00', '')
+
+                if debug & 16:
+                    print("Bad message cleaned: {}".format(msg['markdown']))
 
         msgs_in_db = redo_wrapper(lambda: Message.objects.filter(mid__gte=chunk_mids[0], mid__lte=chunk_mids[-1]), log=debug & 64)
         mids_in_db = redo_wrapper(lambda: [m.mid for m in msgs_in_db], log=debug & 64)
@@ -351,9 +360,6 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
         for mid in chunk_mids:
             # message = transcript.messages[mid]
 
-            if mid in mids_in_db:
-                mids_in_db.remove(mid)
-
             if debug & 2:
                 print("message_num, mid: {}, {}" .format(message_num, mid))
 
@@ -362,6 +368,7 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             if mid not in mids_in_db:
                 messages_to_create.append(Message(**transcript_msgs[mid]))
             else:
+                mids_in_db.remove(mid)
                 redo_wrapper(lambda: msgs_in_db.filter(mid=mid).update(**transcript_msgs[mid]), log=debug & 64)
 
         if debug & 8:
@@ -404,7 +411,7 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
         start += datetime.timedelta(1 / 24)
 
 
-def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
+def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0, snapshots_only=False):
     while start <= end:
         template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={})"'.format(start.year, start.month, start.day, debug)
         command = ''
@@ -443,6 +450,11 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
 
             return_code = subprocess.run(command, shell=True).returncode
 
+            # If the return code is -11, that means there was a segfault. In practice, this only happens when returning
+            # from the subprocess, so we can assume that whatever we wanted to do got done.
+            if return_code == -11:
+                return_code = 0
+
             if return_code and mode == 'day':
                 time.sleep(runs)
                 print("Starting subprocess again; iteration {}".format(runs))
@@ -454,7 +466,7 @@ def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0):
                     tries = 5
                     for i in range(tries):
                         try:
-                            parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=True)
+                            parse_convos(240, start.year, start.month, start.day, 0, 24, debug=debug, snapshot_only=snapshots_only)
                             break
                         except (p_DatabaseError, d_DatabaseError, p_OperationalError, d_OperationalError, p_InterfaceError, d_InterfaceError):
                             if debug & 64:
