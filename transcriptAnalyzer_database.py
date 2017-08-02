@@ -413,7 +413,7 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
 
 def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0, snapshots_only=False):
     while start <= end:
-        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={})"'.format(start.year, start.month, start.day, debug)
+        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={}, snapshot_only={})"'.format(start.year, start.month, start.day, debug, snapshots_only)
         command = ''
         mode = 'day'
         st = time.time()
