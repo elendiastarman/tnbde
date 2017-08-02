@@ -148,7 +148,7 @@ def redo_wrapper(func, log=False):
         raise ValueError("Could not exeute database operation")
 
 
-def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False, ignore_snapshot=False):
+def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_end=4, debug=0, log=0, snapshot_only=False, ignore_snapshot=False, verify_message_count=False):
     url = "http://chat.stackexchange.com/transcript/{}/{}/{}/{}/{}-{}".format(room_num, year, month, day, hour_start, hour_end)
     date = datetime.date(year, month, day)
 
@@ -210,6 +210,10 @@ def parse_convos(room_num=240, year=2016, month=3, day=23, hour_start=0, hour_en
             if debug & 4:
                 print("Snapshot created!")
 
+            return
+
+    if verify_message_count:
+        if len(re.findall('<div class="message"', transcript_text)) == Message.objects.count(date=date):
             return
 
     transcript = Parser(debug=debug & 1)
@@ -411,9 +415,9 @@ def parse_hours(start, end=datetime.datetime.now(), debug=0):
         start += datetime.timedelta(1 / 24)
 
 
-def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0, snapshots_only=False, ignore_snapshots=False):
+def parse_days_with_processes(start, end=datetime.datetime.now(), debug=0, snapshots_only=False, ignore_snapshots=False, verify_message_counts=False):
     while start <= end:
-        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={}, snapshot_only={}, ignore_snapshot={})"'.format(start.year, start.month, start.day, debug, snapshots_only, ignore_snapshots)
+        template = '/usr/local/bin/python3 /home/elendia/webapps/ppcg/PPCG/manage.py shell -c "from transcriptAnalyzer.transcriptAnalyzer_database import *; parse_convos(240, {}, {}, {}, {{}}, {{}}, debug={}, snapshot_only={}, ignore_snapshot={}, verify_message_count={})"'.format(start.year, start.month, start.day, debug, snapshots_only, ignore_snapshots, verify_message_counts)
         command = ''
         mode = 'day'
         st = time.time()
