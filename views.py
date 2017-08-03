@@ -56,6 +56,14 @@ def TNBDE_oldpermalink(request, **kwargs):
 
 @csrf_exempt
 def runcode(request, **kwargs):
+    try:
+        return _runcode(request, **kwargs)
+    except Exception:
+        error = '\n'.join(traceback.format_exception(sys.exc_info()))
+        return HttpResponse(json.dumps({'error': error}), content_type="text/json")
+
+
+def _runcode(request, **kwargs):
     querystring = 'SET statement_timeout TO 10000;\n' + request.POST['query']
 
     sha1 = hashlib.sha1(bytes(querystring, encoding='utf-8')).hexdigest()
