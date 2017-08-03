@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from transcriptAnalyzer.models import Query, Inquiry
 
+import re
 import sys
 import html
 import json
