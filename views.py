@@ -68,7 +68,7 @@ def runcode(request, **kwargs):
     try:
         return _runcode(request, **kwargs)
     except:
-        error = output_clean_error(sys.exc_info)
+        error = output_clean_error(sys.exc_info())
 
         print(error, file=sys.stderr)  # noqa  # (because flake8 in Sublime is dumb)
 
@@ -111,9 +111,9 @@ def _runcode(request, **kwargs):
             results = cur.fetchall()
         except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError):
             con.rollback()
-            error = output_clean_error(sys.exc_info)
+            error = output_clean_error(sys.exc_info())
         except (psycopg2.DatabaseError, psycopg2.InterfaceError):
-            error = output_clean_error(sys.exc_info)
+            error = output_clean_error(sys.exc_info())
 
         if error:
             data["error"] = error
