@@ -54,18 +54,23 @@ def TNBDE_oldpermalink(request, **kwargs):
     return HttpResponseRedirect(reverse('tnbde-permalink', args=(kwargs['code'],)))
 
 
+def output_clean_error(exc_info):
+    error = '\n'.join(traceback.format_exception(*exc_info))
+
+    error = re.sub('File "/.*?(?=/.*?\.py")', 'File "', error)
+
+    return error
+
+
 @csrf_exempt
 def runcode(request, **kwargs):
     try:
         return _runcode(request, **kwargs)
     except:
-        print("Something failed!", file=sys.stderr)  # noqa
-        with open("foobar_error.txt", "w") as file:
-            file.write("Something failed!")
-        error = '\n'.join(traceback.format_exception(*sys.exc_info()))
+        error = output_clean_error(sys.exc_info)
+
         print(error, file=sys.stderr)  # noqa  # (because flake8 in Sublime is dumb)
-        with open("foobar_error.txt", "a") as file:
-            file.write(error)
+
         return HttpResponse(json.dumps({'error': error}), content_type="text/json")
 
 
@@ -103,10 +108,11 @@ def _runcode(request, **kwargs):
         try:
             cur.execute(querystring)
             results = cur.fetchall()
-        except Exception:  # (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError) as e:
+        except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError):
             con.rollback()
-            # error = str(e)
-            error = '\n'.join(traceback.format_exception(sys.exc_info()))
+            error = output_clean_error(sys.exc_info)
+        except (psycopg2.DatabaseError, psycopg2.InterfaceError):
+            error = output_clean_error(sys.exc_info)
 
         if error:
             data["error"] = error
