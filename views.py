@@ -62,7 +62,7 @@ def runcode(request, **kwargs):
         print("Something failed!", file=sys.stderr)  # noqa
         with open("foobar_error.txt", "w") as file:
             file.write("Something failed!")
-        error = '\n'.join(traceback.format_exception(sys.exc_info()))
+        error = '\n'.join(traceback.format_exception(*sys.exc_info()))
         print(error, file=sys.stderr)  # noqa  # (because flake8 in Sublime is dumb)
         with open("foobar_error.txt", "a") as file:
             file.write(error)
