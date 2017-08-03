@@ -48,7 +48,7 @@ function run_code(){
                     $('#query-output').append($('<pre class="error">'+escapeHtml(data['error'])+'</pre>'));
                 }
             },
-            failure: function(response) {
+            error: function(response) {
                 $('#run-button').prop('disabled',false);
                 $('#query-output').append($('<p>Something went wrong! :(</p>'));
             }

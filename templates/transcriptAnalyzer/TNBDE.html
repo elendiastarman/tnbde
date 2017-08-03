@@ -58,23 +58,26 @@
         <ul>
             <li>The underlying database engine is PostgreSQL.</li>
             <li>Query execution time is currently limited to 10 seconds, and only read-only operations are allowed.</li>
-            <li>There are currently three tables (all prepended with <code>transcriptAnalyzer_</code>, possibly to be fixed later):
+            <li>There are currently three user-facing tables (all prepended with <code>transcriptAnalyzer_</code>):
                 <ul>
                     <li><code>user</code>, which has two columns: <code>id</code> (internal user id) and <code>uid</code> (SE chat id, auto-linked);</li>
                     <li><code>username</code>, which has three columns: <code>id</code>, <code>name</code>, and <code>user_id (internal id)</code>;</li>
                     <li><code>message</code>, which has eleven columns:
                         <ul>
+                            <li><code>id</code> &ndash; the internal id of the message</li>
                             <li><code>user_id</code> &ndash; the user who posted the message (internal id)</li>
                             <li><code>mid</code> &ndash; message id (auto-linked)</li>
                             <li><code>rid</code> &ndash; reply id, the message id of the message being replied to (if applicable)</li>
                             <li><code>room</code> &ndash; the id of the chat room the message was in (240 for now)</li>
                             <li><code>date</code> &ndash; YYYY-MM-DD format</li>
-                            <li><code>time</code> &ndash; somewhat coarse-grained, due to how SE chat displays message times</li>
-                            <li><code>content</code> &ndash; currently provided as raw HTML</li>
+                            <li><code>time</code> &ndash; accurate to the minute, in UTC</li>
+                            <li><code>content</code> &ndash; raw HTML as seen in the transcript</li>
+                            <li><code>markdown</code> &ndash; raw Markdown as typed by the user</li>
                             <li><code>name</code> &ndash; the username of the user who posted the message at the time of posting</li>
                             <li><code>stars</code> &ndash; how many stars the message has</li>
                             <li><code>onebox</code> &ndash; whether or not the message has a onebox</li>
                             <li><code>onebox_type</code> &ndash; post, message, youtube, etc...</li>
+                            <li><code>was_edited</code> &ndash; whether the message was edited</li>
                         </ul>
                     </li>
                 </ul>
