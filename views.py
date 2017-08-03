@@ -87,6 +87,7 @@ def runcode(request, **kwargs):
 
         try:
             cur.execute(querystring)
+            results = cur.fetchall()
         except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError) as e:
             con.rollback()
             error = str(e)
@@ -94,7 +95,6 @@ def runcode(request, **kwargs):
         if error:
             data["error"] = error
         else:
-            results = cur.fetchall()
             headers = [column.name for column in cur.description]
             htmlstr = "<table border='1' class='sortable' id='query-table'><tr>{}</tr>".format(''.join('<th>{}</th>'.format(header) for header in headers))
             jsonlist = []
