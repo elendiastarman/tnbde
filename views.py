@@ -13,6 +13,7 @@ import string
 import random
 import hashlib
 import psycopg2
+import traceback
 
 
 # Create your views here.
@@ -88,9 +89,10 @@ def runcode(request, **kwargs):
         try:
             cur.execute(querystring)
             results = cur.fetchall()
-        except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError) as e:
+        except Exception:  # (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError) as e:
             con.rollback()
-            error = str(e)
+            # error = str(e)
+            error = '\n'.join(traceback.format_exception(sys.exc_info()))
 
         if error:
             data["error"] = error
