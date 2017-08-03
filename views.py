@@ -60,6 +60,7 @@ def runcode(request, **kwargs):
         return _runcode(request, **kwargs)
     except Exception:
         error = '\n'.join(traceback.format_exception(sys.exc_info()))
+        print(error, file=sys.stderr)  # noqa  # (because flake8 in Sublime is dumb)
         return HttpResponse(json.dumps({'error': error}), content_type="text/json")
 
 
