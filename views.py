@@ -57,8 +57,7 @@ def TNBDE_oldpermalink(request, **kwargs):
 
 def output_clean_error(exc_info):
     error = '\n'.join(traceback.format_exception(*exc_info))
-
-    error = re.sub('File "/.*?(?=/.*?\.py")', 'File "', error)
+    error = re.sub('File "/.*/(?=.*\.py")', 'File "', error)
 
     return error
 
