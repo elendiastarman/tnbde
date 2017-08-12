@@ -91,6 +91,8 @@ def _runcode(request, **kwargs):
         shortcode = ''.join(random.choice(string.ascii_letters) for _ in range(10))
         inquiry = Inquiry(sha1=js_sha1, shortcode=shortcode, js=request.POST['javascript'])
 
+    error = ""
+
     if query.response:
         response = query.response
 
@@ -103,7 +105,6 @@ def _runcode(request, **kwargs):
                                host="127.0.0.1",
                                port="5432" if sys.platform in ["win32", "darwin"] else "30192")
         cur = con.cursor()
-        error = ""
 
         try:
             cur.execute(querystring)
