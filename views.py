@@ -150,10 +150,11 @@ def _runcode(request, **kwargs):
         response = json.dumps(data)
         query.response = response
 
-    query.save()
+    if not error:
+        query.save()
 
-    inquiry.query = query
-    inquiry.save()
+        inquiry.query = query
+        inquiry.save()
 
     response = "{}, \"shortcode\": \"{}\"}}".format(response[:-1], shortcode)
     return HttpResponse(response, content_type="text/json")
