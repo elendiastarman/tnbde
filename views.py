@@ -107,6 +107,9 @@ def _runcode(request, **kwargs):
 
         while max_retries > 0 and time.time() - time_start < time_limit:
             if not con or con.closed:
+                if con.closed:
+                    time.sleep(1)
+
                 con = psycopg2.connect(database="ppcg_transcript",
                                        user="taanon",
                                        password="foobar",
