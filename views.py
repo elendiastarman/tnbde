@@ -103,13 +103,15 @@ def _runcode(request, **kwargs):
 
         max_retries = 5
         time_start = time.time()
+        con = None
 
         while max_retries > 0 and time.time() - time_start < time_limit:
-            con = psycopg2.connect(database="ppcg_transcript",
-                                   user="taanon",
-                                   password="foobar",
-                                   host="127.0.0.1",
-                                   port="5432" if sys.platform in ["win32", "darwin"] else "30192")
+            if not con or con.closed:
+                con = psycopg2.connect(database="ppcg_transcript",
+                                       user="taanon",
+                                       password="foobar",
+                                       host="127.0.0.1",
+                                       port="5432" if sys.platform in ["win32", "darwin"] else "30192")
             cur = con.cursor()
 
             try:
@@ -122,8 +124,6 @@ def _runcode(request, **kwargs):
             except (psycopg2.DatabaseError, psycopg2.InterfaceError):
                 max_retries -= 1
                 error = output_clean_error(sys.exc_info())
-            finally:
-                con.close()
 
         if error:
             data["error"] = error
