@@ -10,6 +10,7 @@ import re
 import sys
 import html
 import json
+import time
 import string
 import random
 import hashlib
@@ -75,7 +76,8 @@ def runcode(request, **kwargs):
 
 
 def _runcode(request, **kwargs):
-    querystring = 'SET statement_timeout TO 10000;\n' + request.POST['query']
+    time_limit = 10  # seconds
+    querystring = 'SET statement_timeout TO {};\n'.format(time_limit * 1000) + request.POST['query']
 
     sha1 = hashlib.sha1(bytes(querystring, encoding='utf-8')).hexdigest()
     try:
@@ -106,14 +108,20 @@ def _runcode(request, **kwargs):
                                port="5432" if sys.platform in ["win32", "darwin"] else "30192")
         cur = con.cursor()
 
-        try:
-            cur.execute(querystring)
-            results = cur.fetchall()
-        except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError):
-            con.rollback()
-            error = output_clean_error(sys.exc_info())
-        except (psycopg2.DatabaseError, psycopg2.InterfaceError):
-            error = output_clean_error(sys.exc_info())
+        max_retries = 5
+        time_start = time.time()
+
+        while max_retries > 0 and time.time() - time_start < time_limit:
+            try:
+                cur.execute(querystring)
+                results = cur.fetchall()
+            except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError):
+                con.rollback()
+                max_retries = 0
+                error = output_clean_error(sys.exc_info())
+            except (psycopg2.DatabaseError, psycopg2.InterfaceError):
+                max_retries -= 1
+                error = output_clean_error(sys.exc_info())
 
         if error:
             data["error"] = error
