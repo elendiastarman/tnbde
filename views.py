@@ -101,17 +101,17 @@ def _runcode(request, **kwargs):
     else:
         data = {'error': "", 'results_html': "", 'results_json': ""}
 
-        con = psycopg2.connect(database="ppcg_transcript",
-                               user="taanon",
-                               password="foobar",
-                               host="127.0.0.1",
-                               port="5432" if sys.platform in ["win32", "darwin"] else "30192")
-        cur = con.cursor()
-
         max_retries = 5
         time_start = time.time()
 
         while max_retries > 0 and time.time() - time_start < time_limit:
+            con = psycopg2.connect(database="ppcg_transcript",
+                                   user="taanon",
+                                   password="foobar",
+                                   host="127.0.0.1",
+                                   port="5432" if sys.platform in ["win32", "darwin"] else "30192")
+            cur = con.cursor()
+
             try:
                 cur.execute(querystring)
                 results = cur.fetchall()
