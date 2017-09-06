@@ -120,6 +120,7 @@ def _runcode(request, **kwargs):
             try:
                 cur.execute(querystring)
                 results = cur.fetchall()
+                max_retries = 0
             except (psycopg2.ProgrammingError, psycopg2.extensions.QueryCanceledError, psycopg2.DataError):
                 con.rollback()
                 max_retries = 0
