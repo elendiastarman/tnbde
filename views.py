@@ -122,6 +122,8 @@ def _runcode(request, **kwargs):
             except (psycopg2.DatabaseError, psycopg2.InterfaceError):
                 max_retries -= 1
                 error = output_clean_error(sys.exc_info())
+            finally:
+                con.close()
 
         if error:
             data["error"] = error
