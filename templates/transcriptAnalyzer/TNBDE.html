@@ -96,6 +96,6 @@
 		<script src="{% static 'transcriptAnalyzer/TNBDE.js' %}"></script>
 		<script src="{% static 'transcriptAnalyzer/sorttable.js' %}"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js"></script>
-		<script>var editor=ace.edit("sql");editor.setTheme("ace/theme/tomorrow");editor.getSession("ace/mode/sql")</script>
+		<script>var sqlEditor=ace.edit("sql");window.sqlEditor=sqlEditor;sqlEditor.setTheme("ace/theme/tomorrow");sqlEditor.getSession("ace/mode/sql")</script>
 	</body>
 </html>
