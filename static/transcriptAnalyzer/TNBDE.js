@@ -15,7 +15,7 @@ function run_code(){
         $.ajax({
             url: '/runcode',
             type: 'post',
-            data: {'query':$('#sql').val(), 'javascript':$('#javascript').val()},
+            data: {'query':window.sqlEditor.getValue(), 'javascript':$('#javascript').val()},
             dataType: 'html',
             success: function(response) {
                 $('#run-button').prop('disabled',false);
