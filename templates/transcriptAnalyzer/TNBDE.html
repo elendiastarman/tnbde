@@ -31,7 +31,7 @@
         <p style="color: red; font-weight: bold;" id="permalink-error" {% if not error %}hidden{% endif %}>Error: invalid permalink.</p>
 		
         <p>Enter your SQL query here:</p>
-        <textarea id="sql">{{sql}}</textarea>
+        <div id="sql">{{sql}}</div>
         
         <p>Optional - JavaScript to be executed on the results:<br/><span color="red"><strong>Beware of running JavaScript code from unknown or untrusted sources.</strong></span></p>
         <textarea id="javascript">{{js}}</textarea>
@@ -95,6 +95,7 @@
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script src="{% static 'transcriptAnalyzer/TNBDE.js' %}"></script>
 		<script src="{% static 'transcriptAnalyzer/sorttable.js' %}"></script>
-		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js"></script>
+		<script>var editor=ace.edit("sql");editor.setTheme("ace/theme/tomorrow");editor.getSession("ace/mode/sql")</script>
 	</body>
 </html>
