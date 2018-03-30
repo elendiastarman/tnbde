@@ -133,23 +133,24 @@ def _runcode(request, **kwargs):
             data["error"] = error
         else:
             headers = [column.name for column in cur.description]
-            htmlstr = "<table border='1' class='sortable' id='query-table'><tr>{}</tr>".format(''.join('<th>{}</th>'.format(header) for header in headers))
+            htmlstr = "<table border='1' class='sortable' id='query-table'><tr>{}</tr>".format(''.join('<th>{}</th>'.format(html.escape(header)) for header in headers))
             jsonlist = []
 
             for row in results:
                 htmlstr += "<tr>"
 
                 for i, val in enumerate(row):
+                    safe_val = html.escape(str(val))
                     if headers[i] == "mid":
-                        midurl = "http://chat.stackexchange.com/transcript/message/{}#{}".format(val, val)
-                        htmlstr += "<td><a href=\"{}\">{}</a></td>".format(midurl, val)
+                        midurl = "http://chat.stackexchange.com/transcript/message/{}#{}".format(safe_val, safe_val)
+                        htmlstr += "<td><a href=\"{}\">{}</a></td>".format(midurl, safe_val)
                     elif headers[i] == "uid":
-                        uidurl = "http://chat.stackexchange.com/users/{}".format(val)
-                        htmlstr += "<td><a href=\"{}\">{}</a></td>".format(uidurl, val)
+                        uidurl = "http://chat.stackexchange.com/users/{}".format(safe_val)
+                        htmlstr += "<td><a href=\"{}\">{}</a></td>".format(uidurl, safe_val)
                     elif headers[i] == "content_rendered":
                         htmlstr += "<td>{}</td>".format(val)
                     else:
-                        htmlstr += "<td>{}</td>".format(html.escape(str(val)))
+                        htmlstr += "<td>{}</td>".format(safe_val)
 
                 htmlstr += "</tr>"
 
