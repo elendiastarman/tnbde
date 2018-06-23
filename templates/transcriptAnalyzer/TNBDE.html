@@ -8,7 +8,7 @@
 		
         {% load staticfiles %}
 		<style>
-			textarea {
+	    textarea, .editable {
                 width: 80%;
                 height: 15em;
             }
@@ -31,10 +31,10 @@
         <p style="color: red; font-weight: bold;" id="permalink-error" {% if not error %}hidden{% endif %}>Error: invalid permalink.</p>
 		
         <p>Enter your SQL query here:</p>
-        <textarea id="sql">{{sql}}</textarea>
+        <div class="editable" id="sql">{{sql}}</div>
         
         <p>Optional - JavaScript to be executed on the results:<br/><span color="red"><strong>Beware of running JavaScript code from unknown or untrusted sources.</strong></span></p>
-        <textarea id="javascript">{{js}}</textarea>
+        <div class="editable" id="javascript">{{js}}</div>
         
         <p>
             <button onclick="run_code()" id="run-button">Run:</button>
@@ -95,6 +95,19 @@
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 		<script src="{% static 'transcriptAnalyzer/TNBDE.js' %}"></script>
 		<script src="{% static 'transcriptAnalyzer/sorttable.js' %}"></script>
-		
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js"></script>
+		<script>
+			ace.config.set("packaged", true);
+			ace.config.set("basePath", "https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.8/ace.js");
+			var sqlEditor=ace.edit("sql");
+			window.sqlEditor=sqlEditor;
+			sqlEditor.setTheme("ace/theme/tomorrow");
+			sqlEditor.getSession().setMode("ace/mode/sql");
+			
+			var jsEditor=ace.edit("javascirpt");
+			window.jsEditor=jsEditor;
+			jsEditor.setTheme("ace/theme/tomorrow");
+			jsEditor.getSession().setMode("ace/mode/javascript");
+		</script>
 	</body>
 </html>
